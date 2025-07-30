@@ -5,20 +5,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeGameBtns = document.querySelectorAll('.game-window .close-btn');
 
     // --- Audio Elements ---
+    // Pastikan path ini benar atau komentari baris playSound di bawah jika belum ada file audio
     const clickSound = document.getElementById('clickSound');
     const winSound = document.getElementById('winSound');
     const loseSound = document.getElementById('loseSound');
     const whackSound = document.getElementById('whackSound');
     const popSound = document.getElementById('popSound');
 
-    // --- Game Window Elements ---
+    // --- Game Window Elements (Pastikan ID di HTML sama persis) ---
     const gameWindows = {
         guess: document.getElementById('guessGameWindow'),
         rps: document.getElementById('rpsGameWindow'),
         whacAMole: document.getElementById('whacAMoleGameWindow')
     };
 
-    // --- Buttons to Open Games ---
+    // --- Buttons to Open Games (Pastikan ID di HTML sama persis) ---
     const openGuessGameBtn = document.getElementById('openGuessGameBtn');
     const openRPSGameBtn = document.getElementById('openRPSGameBtn');
     const openWhacAMoleBtn = document.getElementById('openWhacAMoleBtn');
@@ -43,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Whac-A-Mole Game Elements ---
     const wamGrid = document.getElementById('wamGrid');
-    const wamMoles = document.querySelectorAll('.mole'); // Get all mole elements
+    const wamMoles = document.querySelectorAll('.mole');
     const wamTimerSpan = document.getElementById('wamTimer');
     const wamCurrentScoreSpan = document.getElementById('wamCurrentScore');
     const wamResult = document.getElementById('wamResult');
@@ -54,14 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let wamTimeLeft = 0;
     let wamTimerId = null;
     let wamMolePopInterval = null;
-    let lastMole = null; // To ensure different moles pop up
-    const wamGameDuration = 30; // seconds
+    let lastMole = null; // Untuk memastikan mole yang berbeda muncul berturut-turut
+    const wamGameDuration = 30; // Durasi game dalam detik
 
     // --- Helper Function to Play Sound ---
     function playSound(audioElement) {
         if (audioElement) {
-            audioElement.currentTime = 0; // Rewind to start
-            audioElement.play().catch(e => console.error("Audio playback error:", e)); // Catch potential errors
+            audioElement.currentTime = 0; // Kembalikan ke awal
+            // Menangkap potensi error jika browser memblokir autoplay tanpa interaksi user
+            audioElement.play().catch(e => {
+                // console.warn("Audio playback prevented:", e.message);
+                // Kamu bisa memilih untuk menampilkan pesan error di konsol
+            });
         }
     }
 
@@ -73,13 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const productsElement = document.getElementById(productsElementId);
         const toggleArrow = titleElement.querySelector('.toggle-arrow');
 
-        playSound(clickSound);
+        playSound(clickSound); // Mainkan suara saat klik folder
 
         if (productsElement) {
             if (productsElement.classList.contains('active')) {
                 productsElement.classList.remove('active');
                 toggleArrow.textContent = '▼';
             } else {
+                // Sembunyikan folder lain yang aktif
                 folderTitles.forEach(otherTitle => {
                     if (otherTitle !== titleElement) {
                         const otherParentFolder = otherTitle.closest('.folder');
@@ -105,131 +111,116 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hitCountElement) {
         let currentCount = parseInt(hitCountElement.textContent.replace(/,/g, ''));
         setInterval(() => {
-            currentCount += Math.floor(Math.random() * 10) + 1;
-            hitCountElement.textContent = currentCount.toLocaleString();
-        }, 1000);
+            currentCount += Math.floor(Math.random() * 10) + 1; // Tambah 1-10 hits acak
+            hitCountElement.textContent = currentCount.toLocaleString(); // Format angka dengan koma
+        }, 1000); // Update setiap 1 detik
     }
 
     // --- Game Window Management (Unified) ---
     function openGameWindow(gameId) {
-        // Hide all game windows first
+        // Sembunyikan semua jendela game terlebih dahulu
         Object.values(gameWindows).forEach(window => {
-            window.style.display = 'none';
+            if (window) window.style.display = 'none';
         });
 
-        // Show the specific game window
+        // Tampilkan jendela game yang diminta
         const windowToOpen = gameWindows[gameId];
         if (windowToOpen) {
             windowToOpen.style.display = 'block';
-            playSound(clickSound);
-            // Re-center if it was dragged off screen
+            playSound(clickSound); // Suara saat membuka jendela
+            // Set posisi awal di tengah layar (atau reset jika sudah digeser)
             windowToOpen.style.left = '50%';
             windowToOpen.style.top = '50%';
             windowToOpen.style.transform = 'translate(-50%, -50%)';
+            windowToOpen.style.zIndex = '1001'; // Pastikan yang dibuka berada di atas
 
-            // Initialize game specific logic
+            // Inisialisasi game spesifik
             if (gameId === 'guess') initGuessGame();
             else if (gameId === 'rps') initRPSGame();
             else if (gameId === 'whacAMole') initWhacAMoleGame();
         }
     }
 
+    // Event listener untuk tombol buka game
+    openGuessGameBtn.addEventListener('click', () => openGameWindow('guess'));
+    openRPSGameBtn.addEventListener('click', () => openGameWindow('rps'));
+    openWhacAMoleBtn.addEventListener('click', () => openGameWindow('whacAMole'));
+
+    // Event listener untuk tombol tutup game
     closeGameBtns.forEach(btn => {
         btn.addEventListener('click', (event) => {
             const gameId = event.currentTarget.dataset.gameId;
             if (gameWindows[gameId]) {
                 gameWindows[gameId].style.display = 'none';
-                playSound(clickSound);
-                // Stop any running game intervals/timers
+                playSound(clickSound); // Suara saat menutup jendela
+                // Hentikan interval/timer game yang sedang berjalan jika game ditutup
                 if (gameId === 'whacAMole') stopWhacAMoleGame();
             }
         });
     });
 
-    // --- Draggable Window Logic (Unified) ---
-    gameWindows.forEach(windowEl => { // This will iterate through elements directly
-        if (!windowEl) return;
-        let isDragging = false;
-        let offsetX, offsetY;
-        const titleBar = windowEl.querySelector('.window-title-bar');
-
-        if (titleBar) {
-            titleBar.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                offsetX = e.clientX - windowEl.getBoundingClientRect().left;
-                offsetY = e.clientY - windowEl.getBoundingClientRect().top;
-                windowEl.style.cursor = 'grabbing';
-            });
-        }
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            windowEl.style.left = `${e.clientX - offsetX}px`;
-            windowEl.style.top = `${e.clientY - offsetY}px`;
-            windowEl.style.transform = 'none'; // Disable transform to allow direct positioning
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            if (windowEl) windowEl.style.cursor = 'grab'; // Restore cursor for the specific window
-        });
-    });
-
-    // Fix for forEach on object values:
+    // --- Draggable Window Logic (Unified & Corrected) ---
+    // Iterasi melalui setiap objek jendela game
     Object.values(gameWindows).forEach(windowEl => {
-        if (!windowEl) return;
+        if (!windowEl) return; // Lewati jika elemen tidak ditemukan
+
         let isDragging = false;
         let offsetX, offsetY;
         const titleBar = windowEl.querySelector('.window-title-bar');
 
         if (titleBar) {
+            // Saat mouse diklik pada title bar
             titleBar.addEventListener('mousedown', (e) => {
                 isDragging = true;
+                // Hitung offset dari pointer mouse ke sudut kiri atas jendela
                 offsetX = e.clientX - windowEl.getBoundingClientRect().left;
                 offsetY = e.clientY - windowEl.getBoundingClientRect().top;
-                windowEl.style.cursor = 'grabbing';
+                windowEl.style.cursor = 'grabbing'; // Ubah kursor
+                windowEl.style.zIndex = '1002'; // Pastikan jendela yang sedang di-drag berada di paling atas
             });
         }
 
+        // Saat mouse bergerak (pastikan dragging aktif)
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            // Prevent dragging if the event target is not the title bar or child of title bar
-            // This is a basic check, for complex nested elements, might need more robust solution
-            if (e.target.closest('.window-title-bar') !== titleBar && e.target !== titleBar) {
-                // Do not drag if mouse is over content area
-                return;
-            }
-
+            // Set posisi jendela sesuai posisi mouse dikurangi offset
             windowEl.style.left = `${e.clientX - offsetX}px`;
             windowEl.style.top = `${e.clientY - offsetY}px`;
-            windowEl.style.transform = 'none'; // Disable transform to allow direct positioning
+            windowEl.style.transform = 'none'; // Matikan transform bawaan (translate) agar posisi left/top bisa bekerja
         });
 
+        // Saat mouse dilepas
         document.addEventListener('mouseup', () => {
-            isDragging = false;
-            if (windowEl) windowEl.style.cursor = 'grab'; // Restore cursor for the specific window
+            if (isDragging) {
+                isDragging = false;
+                if (windowEl) {
+                    windowEl.style.cursor = 'grab'; // Kembalikan kursor
+                    windowEl.style.zIndex = '1001'; // Kembalikan z-index default untuk game windows
+                }
+            }
         });
     });
+
 
     // --- Guess The Number Game Logic ---
     function initGuessGame() {
-        secretNumber = Math.floor(Math.random() * 100) + 1;
+        secretNumber = Math.floor(Math.random() * 100) + 1; // Angka rahasia 1-100
         attempts = 0;
-        guessGameResult.textContent = '';
-        guessGameResult.style.color = '#FF1493'; // Reset color
-        guessInput.value = '';
-        guessInput.disabled = false;
-        checkGuessBtn.disabled = false;
-        resetGuessGameBtn.style.display = 'none';
-        guessInput.focus();
-        console.log("Secret number (Guess the Number):", secretNumber);
+        guessGameResult.textContent = ''; // Bersihkan hasil sebelumnya
+        guessGameResult.style.color = '#FF1493'; // Warna default pesan
+        guessInput.value = ''; // Kosongkan input
+        guessInput.disabled = false; // Aktifkan input
+        checkGuessBtn.disabled = false; // Aktifkan tombol cek
+        resetGuessGameBtn.style.display = 'none'; // Sembunyikan tombol reset
+        guessInput.focus(); // Fokus ke input
+        console.log("Secret number (Guess the Number):", secretNumber); // Untuk debugging, bisa dihapus nanti
     }
 
     function checkGuess() {
         const guess = parseInt(guessInput.value);
         if (isNaN(guess) || guess < 1 || guess > 100) {
             guessGameResult.textContent = '⛔ Masukkan angka valid antara 1-100!';
-            playSound(loseSound);
+            playSound(loseSound); // Suara error/kalah
             return;
         }
 
@@ -237,48 +228,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (guess === secretNumber) {
             guessGameResult.textContent = `🎉 YAY! Betul! Angkanya ${secretNumber}. Kamu cuma butuh ${attempts} percobaan!`;
-            guessGameResult.style.color = '#008000'; // Green for win
-            guessInput.disabled = true;
+            guessGameResult.style.color = '#008000'; // Warna hijau untuk menang
+            guessInput.disabled = true; // Nonaktifkan input dan tombol
             checkGuessBtn.disabled = true;
-            resetGuessGameBtn.style.display = 'block';
-            playSound(winSound);
+            resetGuessGameBtn.style.display = 'block'; // Tampilkan tombol reset
+            playSound(winSound); // Suara menang
         } else if (guess < secretNumber) {
             guessGameResult.textContent = `⬆️ Lebih besar dari ${guess}. Coba lagi!`;
-            playSound(loseSound);
+            playSound(loseSound); // Suara kalah
         } else {
             guessGameResult.textContent = `⬇️ Lebih kecil dari ${guess}. Coba lagi!`;
-            playSound(loseSound);
+            playSound(loseSound); // Suara kalah
         }
-        guessInput.value = '';
-        guessInput.focus();
+        guessInput.value = ''; // Kosongkan input setelah tebakan
+        guessInput.focus(); // Fokus kembali ke input
     }
 
-    openGuessGameBtn.addEventListener('click', () => openGameWindow('guess'));
     checkGuessBtn.addEventListener('click', checkGuess);
     guessInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-            checkGuess();
+            checkGuess(); // Memungkinkan tebak dengan Enter
         }
     });
     resetGuessGameBtn.addEventListener('click', () => {
         initGuessGame();
-        playSound(clickSound);
+        playSound(clickSound); // Suara klik saat reset
     });
 
     // --- Rock, Paper, Scissors Game Logic ---
     function initRPSGame() {
         playerScore = 0;
         computerScore = 0;
-        updateRPSScore();
-        rpsResult.textContent = 'Ayo main! Pilih gerakanmu.';
-        rpsResult.style.color = '#FF1493';
-        resetRPSGameBtn.style.display = 'none';
-        rpsButtons.forEach(btn => btn.disabled = false);
+        updateRPSScore(); // Reset skor di UI
+        rpsResult.textContent = 'Ayo main! Pilih gerakanmu.'; // Pesan awal
+        rpsResult.style.color = '#FF1493'; // Warna default pesan
+        resetRPSGameBtn.style.display = 'none'; // Sembunyikan tombol reset
+        rpsButtons.forEach(btn => btn.disabled = false); // Aktifkan tombol pilihan
     }
 
     function playRPS(playerChoice) {
-        playSound(clickSound);
-        const computerChoice = rpsChoices[Math.floor(Math.random() * rpsChoices.length)];
+        playSound(clickSound); // Suara saat memilih
+        const computerChoice = rpsChoices[Math.floor(Math.random() * rpsChoices.length)]; // Pilihan komputer acak
         let resultMessage = '';
 
         if (playerChoice === computerChoice) {
@@ -290,24 +280,25 @@ document.addEventListener('DOMContentLoaded', () => {
         ) {
             resultMessage = `Kamu menang! Kamu ${playerChoice}, Komputer ${computerChoice}.`;
             playerScore++;
-            playSound(winSound);
+            playSound(winSound); // Suara menang
         } else {
             resultMessage = `Kamu kalah! Kamu ${playerChoice}, Komputer ${computerChoice}.`;
             computerScore++;
-            playSound(loseSound);
+            playSound(loseSound); // Suara kalah
         }
 
         rpsResult.textContent = resultMessage;
-        updateRPSScore();
+        updateRPSScore(); // Perbarui skor di UI
 
+        // Cek jika ada yang mencapai 3 poin
         if (playerScore === 3) {
             rpsResult.textContent = '🥳 SELAMAT! Kamu jadi juara! 🥳';
-            rpsResult.style.color = '#008000';
+            rpsResult.style.color = '#008000'; // Warna hijau untuk menang
             endRPSGame();
             playSound(winSound);
         } else if (computerScore === 3) {
             rpsResult.textContent = '😭 GAME OVER! Komputer menang! 😭';
-            rpsResult.style.color = '#FF4500'; // OrangeRed for loss
+            rpsResult.style.color = '#FF4500'; // Warna merah untuk kalah
             endRPSGame();
             playSound(loseSound);
         }
@@ -319,64 +310,79 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endRPSGame() {
-        rpsButtons.forEach(btn => btn.disabled = true);
-        resetRPSGameBtn.style.display = 'block';
+        rpsButtons.forEach(btn => btn.disabled = true); // Nonaktifkan tombol pilihan
+        resetRPSGameBtn.style.display = 'block'; // Tampilkan tombol reset
     }
 
-    openRPSGameBtn.addEventListener('click', () => openGameWindow('rps'));
     rpsButtons.forEach(button => {
         button.addEventListener('click', (e) => playRPS(e.currentTarget.dataset.choice));
     });
     resetRPSGameBtn.addEventListener('click', () => {
         initRPSGame();
-        playSound(clickSound);
+        playSound(clickSound); // Suara klik saat reset
     });
 
     // --- Whac-A-Mole Game Logic ---
     function initWhacAMoleGame() {
         wamCurrentScore = 0;
         wamTimeLeft = wamGameDuration;
-        wamCurrentScoreSpan.textContent = wamCurrentScore;
-        wamTimerSpan.textContent = wamTimeLeft;
-        wamResult.textContent = 'Siap-siap pukul byte!';
-        wamResult.style.color = '#FF1493';
-        resetWhacAMoleBtn.style.display = 'none';
-        startWhacAMoleBtn.style.display = 'block';
+        wamCurrentScoreSpan.textContent = wamCurrentScore; // Reset skor UI
+        wamTimerSpan.textContent = wamTimeLeft; // Reset timer UI
+        wamResult.textContent = 'Siap-siap pukul byte!'; // Pesan awal
+        wamResult.style.color = '#FF1493'; // Warna default pesan
+        resetWhacAMoleBtn.style.display = 'none'; // Sembunyikan tombol reset
+        startWhacAMoleBtn.style.display = 'block'; // Tampilkan tombol mulai
         wamMoles.forEach(mole => {
-            mole.classList.remove('active', 'hit');
-            mole.style.bottom = '-100%'; // Ensure all moles are hidden
+            mole.classList.remove('active', 'hit'); // Hapus kelas aktif/hit
+            mole.style.bottom = '-100%'; // Pastikan semua mole tersembunyi
+            mole.textContent = ''; // Hapus emoji
         });
-        stopWhacAMoleGame(); // Clear any running intervals from previous game
+        stopWhacAMoleGame(); // Pastikan tidak ada interval yang berjalan dari sesi sebelumnya
     }
 
     function randomMole() {
-        const randomIndex = Math.floor(Math.random() * wamMoles.length);
-        const selectedMole = wamMoles[randomIndex];
+        // Filter mole yang saat ini tidak aktif atau tidak sedang dalam animasi 'hit'
+        const availableMoles = Array.from(wamMoles).filter(mole =>
+            !mole.classList.contains('active') && !mole.classList.contains('hit')
+        );
 
-        // Ensure different mole pops up consecutively
-        if (selectedMole === lastMole) {
-            return randomMole();
+        if (availableMoles.length === 0) {
+            return null; // Tidak ada mole yang tersedia untuk muncul
+        }
+
+        const randomIndex = Math.floor(Math.random() * availableMoles.length);
+        const selectedMole = availableMoles[randomIndex];
+
+        // Usahakan mole yang berbeda muncul berturut-turut jika memungkinkan
+        if (selectedMole === lastMole && availableMoles.length > 1) {
+            return randomMole(); // Panggil rekursif hingga dapat mole berbeda
         }
         lastMole = selectedMole;
         return selectedMole;
     }
 
     function popUpMole() {
-        const mole = randomMole();
-        mole.classList.add('active');
-        // Add random emoji to mole
-        const emojis = ['🐛', '👾', '🦠', '🤖', '⚡'];
-        mole.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        playSound(popSound);
+        if (wamTimeLeft <= 0) { // Hentikan munculnya mole jika waktu habis
+            stopWhacAMoleGame();
+            return;
+        }
 
+        const mole = randomMole();
+        if (!mole) return; // Jika tidak ada mole tersedia, berhenti
+
+        mole.classList.add('active'); // Jadikan mole aktif (muncul)
+        const emojis = ['🐛', '👾', '🦠', '🤖', '⚡']; // Emoji byte/virus
+        mole.textContent = emojis[Math.floor(Math.random() * emojis.length)]; // Beri emoji acak
+        playSound(popSound); // Suara pop
+
+        // Mole akan menghilang otomatis jika tidak dipukul
         setTimeout(() => {
-            mole.classList.remove('active');
-            mole.style.bottom = '-100%'; // Hide mole after some time if not hit
-            // Clear content if mole not hit, to avoid showing emoji on subsequent pop up
-            if (!mole.classList.contains('hit')) {
-                 mole.textContent = '';
+            if (mole.classList.contains('active')) { // Hanya sembunyikan jika masih aktif (belum dipukul)
+                mole.classList.remove('active');
+                mole.style.bottom = '-100%'; // Sembunyikan kembali
+                mole.textContent = ''; // Hapus emoji
             }
-        }, 800); // Mole stays up for 0.8 seconds
+        }, 800); // Mole muncul selama 0.8 detik
     }
 
     function startGameWAM() {
@@ -385,66 +391,75 @@ document.addEventListener('DOMContentLoaded', () => {
         wamCurrentScoreSpan.textContent = wamCurrentScore;
         wamTimerSpan.textContent = wamTimeLeft;
         wamResult.textContent = 'GO!';
-        startWhacAMoleBtn.style.display = 'none';
-        resetWhacAMoleBtn.style.display = 'none';
+        startWhacAMoleBtn.style.display = 'none'; // Sembunyikan tombol mulai
+        resetWhacAMoleBtn.style.display = 'none'; // Sembunyikan tombol reset
 
+        stopWhacAMoleGame(); // Pastikan tidak ada interval lama
+
+        // Mulai timer utama
         wamTimerId = setInterval(() => {
             wamTimeLeft--;
             wamTimerSpan.textContent = wamTimeLeft;
 
             if (wamTimeLeft <= 0) {
-                stopWhacAMoleGame();
+                stopWhacAMoleGame(); // Hentikan game
                 wamResult.textContent = `🎮 Waktu habis! Skor akhirmu: ${wamCurrentScore}`;
-                wamResult.style.color = (wamCurrentScore >= 5) ? '#008000' : '#FF4500'; // Green if good score, red if not
-                resetWhacAMoleBtn.style.display = 'block';
-                playSound((wamCurrentScore >= 5) ? winSound : loseSound);
+                wamResult.style.color = (wamCurrentScore >= 5) ? '#008000' : '#FF4500'; // Warna pesan hasil
+                resetWhacAMoleBtn.style.display = 'block'; // Tampilkan tombol reset
+                playSound((wamCurrentScore >= 5) ? winSound : loseSound); // Suara hasil akhir
             }
-        }, 1000);
+        }, 1000); // Update setiap 1 detik
 
-        wamMolePopInterval = setInterval(popUpMole, 1000); // Mole pops up every 1 second
+        // Mulai mole bermunculan
+        wamMolePopInterval = setInterval(popUpMole, 1000); // Mole muncul setiap 1 detik
     }
 
     function stopWhacAMoleGame() {
-        clearInterval(wamTimerId);
-        clearInterval(wamMolePopInterval);
+        clearInterval(wamTimerId); // Hentikan timer
+        clearInterval(wamMolePopInterval); // Hentikan munculnya mole
         wamTimerId = null;
         wamMolePopInterval = null;
+        // Pastikan semua mole disembunyikan dan direset
         wamMoles.forEach(mole => {
-            mole.classList.remove('active');
-            mole.style.bottom = '-100%'; // Ensure all moles are hidden
+            mole.classList.remove('active', 'hit');
+            mole.style.bottom = '-100%';
+            mole.textContent = '';
         });
     }
 
     wamMoles.forEach(mole => {
         mole.addEventListener('click', () => {
-            if (mole.classList.contains('active') && wamTimerId !== null) { // Only hit if active and game is running
+            // Hanya bisa dipukul jika aktif (muncul) dan game sedang berjalan
+            if (mole.classList.contains('active') && wamTimerId !== null) {
                 wamCurrentScore++;
                 wamCurrentScoreSpan.textContent = wamCurrentScore;
-                mole.classList.remove('active'); // Hide immediately
-                mole.classList.add('hit'); // Add hit class for visual feedback
-                mole.textContent = '💥'; // Show hit effect
+                mole.classList.remove('active'); // Sembunyikan segera
+                mole.classList.add('hit'); // Tambahkan kelas 'hit' untuk efek visual
+                mole.textContent = '💥'; // Tampilkan efek 'hit'
 
-                playSound(whackSound);
+                playSound(whackSound); // Suara pukul
 
-                // Remove hit class after a short delay to reset for next pop-up
+                // Hapus kelas 'hit' dan sembunyikan mole setelah sedikit jeda
                 setTimeout(() => {
                     mole.classList.remove('hit');
-                    mole.textContent = ''; // Clear emoji after hit
-                    mole.style.bottom = '-100%'; // Ensure it's fully hidden
+                    mole.textContent = ''; // Hapus emoji hit
+                    mole.style.bottom = '-100%'; // Pastikan tersembunyi sepenuhnya
                 }, 200);
             }
         });
     });
 
-    openWhacAMoleBtn.addEventListener('click', () => openGameWindow('whacAMole'));
-    startWhacAMoleBtn.addEventListener('click', () => startGameWAM());
+    startWhacAMoleBtn.addEventListener('click', () => {
+        startGameWAM();
+        playSound(clickSound); // Suara saat mulai game
+    });
     resetWhacAMoleBtn.addEventListener('click', () => {
         initWhacAMoleGame();
-        playSound(clickSound);
+        playSound(clickSound); // Suara klik saat reset
     });
 
-    // --- Initializations ---
-    initGuessGame(); // Initialize Guess Game on load
-    initRPSGame();   // Initialize RPS Game on load
-    initWhacAMoleGame(); // Initialize Whac-A-Mole Game on load
+    // --- Initializations (Panggil fungsi init untuk setiap game saat DOM selesai dimuat) ---
+    initGuessGame();
+    initRPSGame();
+    initWhacAMoleGame();
 });
