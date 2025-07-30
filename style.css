@@ -1,802 +1,369 @@
-/* Import Google Fonts - Fredoka One (untuk judul) dan Open Sans (untuk teks biasa) */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;700&display=swap');
+/* Import font dari Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap');
 
-/* --- Reset & Global Styles --- */
+:root {
+    --pink-soft: #FFC0CB; /* Pink standar */
+    --pink-light: #FFDDE2; /* Pink lebih muda */
+    --pink-dark: #FF99AA; /* Pink lebih tua/gelap */
+    --purple-light: #E0BBE4; /* Ungu muda */
+    --blue-light: #AED9E0; /* Biru muda */
+    --yellow-light: #FEE7B0; /* Kuning muda */
+    --white-translucent: rgba(255, 255, 255, 0.85); /* Putih transparan */
+    --font-primary: 'Cherry Bomb One', cursive;
+    --shadow-effect: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 body {
-    font-family: 'Open Sans', sans-serif; /* Font default untuk seluruh body */
+    font-family: var(--font-primary);
+    background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
     margin: 0;
-    padding: 20px;
-    background: linear-gradient(to right, #ffdde1, #ee9ca7); /* Background gradient pink-merah muda */
-    color: #333; /* Warna teks default */
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Pastikan tinggi minimal 100% viewport height */
+    min-height: 100vh;
+    color: #5B3B70; /* Warna teks umum */
     overflow-x: hidden; /* Mencegah scroll horizontal */
-    box-sizing: border-box; /* Model box universal */
 }
 
 .container {
-    background-color: #ffffff; /* Latar belakang putih untuk container utama */
+    background-color: var(--white-translucent);
+    border-radius: 25px;
+    box-shadow: var(--shadow-effect);
     padding: 30px;
-    border-radius: 20px; /* Sudut membulat */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Bayangan lembut */
     text-align: center;
-    max-width: 90%; /* Lebar maksimum 90% dari viewport */
-    width: 600px; /* Lebar tetap untuk desktop */
-    margin: 20px auto; /* Margin atas/bawah 20px, auto untuk tengah horizontal */
+    max-width: 900px;
+    width: 95%;
     box-sizing: border-box;
-    position: relative; /* Penting untuk penempatan canvas nanti */
+    border: 5px solid var(--pink-dark); /* Border lucu */
+    position: relative; /* Untuk elemen absolut di dalamnya */
+    overflow: hidden; /* Untuk clip konten yang keluar */
 }
 
-h1, h2, h3 {
-    font-family: 'Fredoka One', cursive; /* Font khusus untuk judul */
-    color: #e83e8c; /* Warna pink cerah untuk judul */
+/* Header */
+.game-header {
     margin-bottom: 20px;
 }
 
-h1 {
+.game-header h1 {
     font-size: 2.8em;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Bayangan teks untuk judul utama */
-}
-
-h2 {
-    font-size: 2em;
-    color: #ff69b4; /* Warna pink sedikit berbeda */
-}
-
-h3 {
-    font-size: 1.5em;
-    color: #9c27b0; /* Warna ungu */
-}
-
-.hidden {
-    display: none !important; /* Paksa sembunyikan elemen */
-}
-
-/* --- Tombol Umum --- */
-button {
-    background-color: #ff69b4; /* Warna pink tombol */
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 10px;
-    font-size: 1.2em;
-    cursor: pointer;
-    margin: 10px 5px; /* Sedikit margin antar tombol */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Transisi halus */
-    font-family: 'Fredoka One', cursive;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-button:hover {
-    background-color: #e83e8c; /* Warna pink lebih gelap saat hover */
-    transform: translateY(-2px); /* Efek sedikit terangkat */
-}
-
-button:active {
-    background-color: #d12e7a; /* Warna saat tombol ditekan */
-    transform: translateY(0);
-}
-
-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-}
-
-/* --- Area Game Umum --- */
-#game-area {
-    padding: 20px;
-    border: 2px dashed #ffc0cb; /* Border putus-putus */
-    border-radius: 15px;
-    background-color: #fff0f5; /* Latar belakang pink sangat muda */
-}
-
-#question {
-    font-size: 3em;
-    font-weight: bold;
-    color: #e83e8c;
-    margin-bottom: 20px;
-    min-height: 1.5em; /* Pastikan ada ruang untuk soal */
-    white-space: pre-wrap; /* Penting untuk soal bersusun agar newline (\n) bekerja */
-    line-height: 1.2;
-}
-
-/* Animasi untuk #question saat soal baru muncul */
-.question-animated {
-    animation: fadeInScale 0.5s ease-out;
-}
-
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-#answer-inputs {
-    display: flex;
-    justify-content: center;
-    gap: 10px; /* Jarak antar kotak input */
-    margin-bottom: 20px;
-}
-
-/* Styling untuk input box tunggal */
-.single-answer-input {
-    width: 150px;
-    padding: 10px 15px;
-    font-size: 1.8em;
-    text-align: center;
-    border: 3px solid #ffb6c1; /* Border pink muda */
-    border-radius: 10px;
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.single-answer-input:focus {
-    border-color: #e83e8c; /* Warna border saat fokus */
-    box-shadow: 0 0 8px rgba(232, 62, 140, 0.4);
-}
-
-/* Styling untuk kotak input bersusun */
-.answer-box {
-    width: 50px; /* Lebar setiap kotak */
-    height: 60px; /* Tinggi setiap kotak */
-    padding: 5px;
-    font-size: 2.2em; /* Ukuran font lebih besar */
-    text-align: center;
-    border: 3px solid #ffb6c1;
-    border-radius: 8px;
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.answer-box:focus {
-    border-color: #e83e8c;
-    box-shadow: 0 0 8px rgba(232, 62, 140, 0.4);
-}
-
-#feedback {
-    font-size: 1.3em;
-    font-weight: bold;
-    margin-top: 15px;
-    min-height: 1.5em; /* Ruang untuk feedback agar tidak bergeser */
-    color: #4CAF50; /* Warna hijau untuk benar */
-}
-
-#feedback.error {
-    color: #F44336; /* Warna merah untuk salah */
-}
-
-#timer {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #e83e8c;
-    margin-top: 20px;
-}
-
-#susun-hint {
-    background-color: #ffe0b2; /* Oranye muda */
-    border: 1px solid #ff9800;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
-    text-align: left;
-    font-size: 1em;
-    line-height: 1.6;
-    color: #333;
-}
-
-#susun-hint h3 {
-    margin-top: 0;
-    color: #e65100; /* Oranye gelap */
-    font-size: 1.3em;
-}
-
-#susun-hint p strong {
-    color: #d84315; /* Oranye sangat gelap */
-}
-
-/* --- Pesan Kemenangan/Kekalahan --- */
-#win-message, #lose-message {
-    padding: 30px;
-    border-radius: 20px;
-    background-color: #e0f7fa; /* Biru muda cerah */
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-#win-message h2 {
-    color: #00897b; /* Hijau tosca */
-    font-size: 2.5em;
-}
-
-#lose-message h2 {
-    color: #d32f2f; /* Merah gelap */
-    font-size: 2.5em;
-}
-
-#win-message p, #lose-message p {
-    font-size: 1.4em;
-    margin-bottom: 30px;
-    line-height: 1.5;
-}
-
-.emojis span {
-    font-size: 2.5em;
-    margin: 0 10px;
-    animation: bounce 0.8s infinite alternate; /* Animasi bouncing */
-}
-
-.emojis span:nth-child(2) { animation-delay: 0.1s; }
-.emojis span:nth-child(3) { animation-delay: 0.2s; }
-.emojis span:nth-child(4) { animation-delay: 0.3s; }
-.emojis span:nth-child(5) { animation-delay: 0.4s; }
-
-@keyframes bounce {
-    from { transform: translateY(0); }
-    to { transform: translateY(-10px); }
-}
-
-/* --- Mode Ujian Kilat --- */
-#timed-challenge-area {
-    padding: 25px;
-    border: 2px solid #a7d9f7; /* Border biru muda */
-    border-radius: 15px;
-    background-color: #f0f8ff; /* Latar belakang biru sangat muda */
-}
-
-#timed-question-display {
-    font-size: 2.5em;
-    font-weight: bold;
-    color: #3f51b5; /* Biru gelap */
-    margin-bottom: 25px;
-    min-height: 1.5em;
-}
-
-#timed-answer-input {
-    width: 200px;
-    padding: 12px 20px;
-    font-size: 2em;
-    text-align: center;
-    border: 3px solid #81d4fa; /* Biru muda */
-    border-radius: 10px;
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    margin-bottom: 20px;
-}
-
-#timed-answer-input:focus {
-    border-color: #2196f3; /* Biru cerah */
-    box-shadow: 0 0 10px rgba(33, 150, 243, 0.4);
-}
-
-#timed-challenge-timer {
-    font-size: 1.8em;
-    font-weight: bold;
-    color: #e74c3c; /* Merah */
+    color: var(--pink-dark);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
 }
 
-#timed-challenge-progress {
-    font-size: 1.3em;
-    color: #607d8b; /* Abu-abu kebiruan */
-    margin-bottom: 20px;
+.header-bear {
+    width: 120px;
+    height: auto;
+    animation: bounce 2s infinite ease-in-out; /* Animasi bouncing */
 }
 
-#timed-challenge-feedback {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-top: 15px;
-    min-height: 1.2em;
-    color: #4CAF50; /* Hijau */
-}
-
-/* --- Mode Pilih Jawaban Acak (jika ada) --- */
-/* Karena tidak ada di HTML yang diberikan, ini hanya placeholder */
-#choose-answer-area {
-    padding: 25px;
-    border: 2px solid #b2ebf2; /* Hijau tosca muda */
-    border-radius: 15px;
-    background-color: #e0f7fa; /* Hijau tosca sangat muda */
-}
-
-#choose-question-display {
-    font-size: 2.2em;
-    font-weight: bold;
-    color: #0097a7; /* Hijau tosca gelap */
+/* Navigasi Game */
+.game-navigation {
     margin-bottom: 30px;
-}
-
-#answer-choices {
     display: flex;
-    flex-wrap: wrap; /* Izinkan tombol wrap ke baris baru */
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 15px; /* Jarak antar tombol pilihan */
-    margin-bottom: 20px;
+    gap: 15px;
 }
 
-.choice-button {
-    background-color: #26c6da; /* Hijau tosca */
-    color: white;
-    padding: 15px 30px;
+.nav-button {
+    background-color: var(--yellow-light);
+    color: #8C5642; /* Warna teks coklat */
+    border: 3px solid var(--pink-dark);
+    padding: 15px 25px;
+    border-radius: 30px;
     font-size: 1.5em;
-    border-radius: 12px;
-    min-width: 120px; /* Lebar minimum tombol */
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-effect);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.choice-button:hover:not(:disabled) {
-    background-color: #00bcd4;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+.nav-button:hover {
+    background-color: var(--pink-dark);
+    color: var(--white-translucent);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
 }
 
-.choice-button.correct {
-    background-color: #4CAF50; /* Hijau */
-    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6); /* Glow hijau */
-}
-
-.choice-button.wrong {
-    background-color: #F44336; /* Merah */
-    box-shadow: 0 0 15px rgba(244, 67, 54, 0.6); /* Glow merah */
-}
-
-#choose-feedback {
-    font-size: 1.3em;
-    font-weight: bold;
-    margin-top: 15px;
-    min-height: 1.3em;
-    color: #333; /* Warna default, akan berubah oleh JS */
-}
-
-/* --- Mode Ingat & Cocokkan --- */
-#memorize-match-area {
-    padding: 25px;
-    border: 2px solid #ffd1dc; /* Pink muda */
+/* Area Game */
+.game-area {
+    background-color: var(--pink-light);
+    border: 3px dashed var(--pink-dark);
     border-radius: 15px;
-    background-color: #fffafa; /* Putih kemerahan */
-    position: relative; /* Penting untuk posisi canvas */
+    min-height: 350px; /* Tinggi minimal area game */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative; /* Untuk penempatan elemen di dalamnya */
+}
+
+.welcome-text {
+    font-size: 1.8em;
+    color: #7B4B94;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Footer */
+.game-footer {
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #8C5642;
+}
+
+/* Animasi */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* --- Gaya Khusus Game 1 (Rumah Beruang Angka) --- */
+.game1-menu {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Pusatkan konten horizontal */
-    overflow: hidden; /* Pastikan tidak ada overflow konten */
+    gap: 15px;
+    align-items: center;
 }
 
-#memorize-match-area h2 {
-    color: #ff69b4;
-}
-
-#memorize-match-timer {
-    font-size: 1.6em;
-    font-weight: bold;
-    color: #28a745; /* Hijau */
-    margin-bottom: 20px;
-}
-
-#memorize-phase, #match-phase {
-    width: 100%; /* Lebar penuh dalam container */
-}
-
-#memorize-phase h3, #match-phase h3 {
-    color: #9c27b0;
+.game1-menu h2 {
+    color: var(--pink-dark);
+    font-size: 2.2em;
     margin-bottom: 15px;
 }
 
-#memorize-questions-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsif grid */
-    gap: 15px;
-    padding: 10px;
-    background-color: #fce4ec; /* Pink sangat muda */
-    border-radius: 10px;
-    margin-bottom: 20px;
+.game1-option-button {
+    background-color: var(--blue-light);
+    color: #4A6C6F;
+    border: 3px solid var(--pink-dark);
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 1.3em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-effect);
+    width: 250px;
 }
 
-.memorize-item {
-    background-color: #ffc0cb; /* Pink muda */
-    color: #555;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+.game1-option-button:hover {
+    background-color: var(--pink-dark);
+    color: var(--white-translucent);
+    transform: scale(1.05);
 }
 
-.match-columns {
+.level-selection {
     display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin-bottom: 20px;
-    position: relative; /* Penting untuk penempatan canvas */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
 }
 
-.match-column {
+.level-button {
+    background-color: var(--yellow-light);
+    color: #8C5642;
+    border: 3px solid var(--pink-dark);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-effect);
+}
+
+.level-button:hover {
+    background-color: var(--pink-dark);
+    color: var(--white-translucent);
+    transform: scale(1.1);
+}
+
+.game-question-area {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 48%; /* Beri sedikit jarak antar kolom */
-    padding: 10px;
-    background-color: #fce4ec;
-    border-radius: 10px;
-    min-height: 250px; /* Tinggi minimum agar canvas bisa menggambar */
+    align-items: center;
+    gap: 20px;
 }
 
-.match-item {
-    background-color: #fff0f5; /* Pink sangat muda */
-    border: 2px solid #ffb6c1; /* Border pink muda */
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #555;
+.question-text {
+    font-size: 3em;
+    color: #5B3B70;
+    background-color: var(--white-translucent);
+    padding: 15px 30px;
+    border-radius: 20px;
+    border: 3px solid var(--pink-dark);
+    box-shadow: var(--shadow-effect);
+}
+
+.answer-input {
+    font-family: var(--font-primary);
+    font-size: 2.5em;
+    padding: 10px 20px;
+    width: 150px;
     text-align: center;
-    cursor: grab; /* Kursor grab untuk indikasi bisa di-drag */
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-    user-select: none; /* Mencegah teks terpilih saat drag */
-    z-index: 10; /* Pastikan item di atas canvas */
-    position: relative; /* Penting agar z-index bekerja */
+    border: 3px solid var(--pink-dark);
+    border-radius: 15px;
+    outline: none;
+    box-shadow: var(--shadow-effect);
+    color: #5B3B70;
 }
 
-.match-item:hover {
-    background-color: #ffe0eb;
-    transform: translateY(-1px);
+.answer-input:focus {
+    border-color: var(--purple-light);
+    box-shadow: 0px 0px 10px var(--purple-light);
 }
 
-.match-item.selected {
-    border-color: #ff69b4; /* Highlight saat dipilih/mulai drag */
-    background-color: #fff5fa;
-    box-shadow: 0 0 10px rgba(255, 105, 180, 0.6);
+.submit-button {
+    background-color: var(--pink-dark);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1.6em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-effect);
 }
 
-/* Item yang sudah dicocokkan */
-.match-item.matched {
-    cursor: default; /* Kursor normal, tidak bisa di-drag lagi */
-    opacity: 0.8; /* Sedikit transparan */
-    pointer-events: none; /* Nonaktifkan interaksi mouse */
+.submit-button:hover {
+    background-color: #e07a8b;
+    transform: translateY(-3px);
 }
 
-/* Canvas untuk menggambar garis */
-#match-canvas {
-    position: absolute; /* Posisikan absolut di atas/dalam match-columns */
-    top: 0;
-    left: 0;
-    width: 100%; /* Lebar penuh parent (memorizeMatchArea) */
-    height: 100%; /* Tinggi penuh parent */
-    z-index: 5; /* Di bawah match-item, di atas latar belakang */
-    pointer-events: none; /* Penting! Biarkan event mouse "lewat" ke elemen di bawahnya */
-}
-
-/* Atur pointer-events ke auto hanya untuk area yang memang ingin kita tangkap event-nya, misalnya seluruh `memorizeMatchArea` */
-#memorize-match-area.active-drawing #match-canvas {
-    pointer-events: auto; /* Aktifkan event mouse pada canvas saat drawing */
-}
-
-#match-feedback {
-    font-size: 1.3em;
+.feedback-message {
+    font-size: 1.8em;
+    margin-top: 15px;
     font-weight: bold;
-    margin-top: 20px;
-    min-height: 1.3em;
-    color: #333;
 }
 
+.feedback-correct {
+    color: #388E3C; /* Hijau */
+}
 
-/* --- Media Queries untuk Responsivitas --- */
+.feedback-wrong {
+    color: #D32F2F; /* Merah */
+}
 
-/* Untuk layar dengan lebar maksimum 768px (tablet potrait, smartphone landscape) */
+/* Timer styles for Level 2/3 */
+.timer-display {
+    font-size: 1.8em;
+    color: #8C5642;
+    margin-bottom: 10px;
+    background-color: var(--yellow-light);
+    padding: 5px 15px;
+    border-radius: 10px;
+    border: 2px dashed var(--pink-dark);
+}
+
+/* Emoji Styles */
+.emoji {
+    font-size: 3em;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* --- Responsif (untuk layar kecil) --- */
 @media (max-width: 768px) {
-    body {
-        padding: 15px; /* Sedikit mengurangi padding body */
-    }
-
-    .container {
-        padding: 25px; /* Mengurangi padding container */
-        border-radius: 18px; /* Sedikit lebih kecil radiusnya */
-        max-width: 95%; /* Izinkan lebih lebar di tablet kecil */
-    }
-
-    h1 {
-        font-size: 2.2em; /* Mengurangi ukuran judul utama */
-        margin-bottom: 15px;
-    }
-
-    h2 {
-        font-size: 1.8em; /* Mengurangi ukuran sub-judul */
-        margin-bottom: 15px;
-    }
-
-    h3 {
-        font-size: 1.3em; /* Mengurangi ukuran sub-sub-judul */
-    }
-
-    button {
-        padding: 10px 20px; /* Mengurangi padding tombol */
-        font-size: 1.1em; /* Mengurangi ukuran font tombol */
-        margin: 8px 3px; /* Mengurangi margin antar tombol */
-        display: block; /* Tombol menu utama menjadi blok agar menumpuk */
-        width: calc(100% - 6px); /* Mengisi lebar penuh dikurangi margin */
-        box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
-    }
-    
-    #main-menu button {
-        margin-bottom: 12px; /* Lebih banyak ruang di antara tombol menu utama */
-    }
-
-    #question {
-        font-size: 2.5em; /* Mengurangi ukuran font soal */
-        margin-bottom: 15px;
-    }
-
-    .single-answer-input {
-        width: 180px; /* Sedikit lebih kecil */
-        padding: 10px 15px;
-        font-size: 1.6em; /* Mengurangi ukuran font input tunggal */
-    }
-
-    .answer-box {
-        width: 48px; /* Mengurangi lebar kotak bersusun */
-        height: 58px; /* Mengurangi tinggi kotak bersusun */
-        font-size: 2em; /* Mengurangi ukuran font kotak bersusun */
-        border-width: 2px; /* Border sedikit lebih tipis */
-    }
-
-    #feedback {
-        font-size: 1.2em;
-        margin-top: 10px;
-    }
-
-    #timer {
-        font-size: 1.3em;
-        margin-top: 15px;
-    }
-
-    #susun-hint {
-        padding: 12px;
-        font-size: 0.95em;
-    }
-
-    #win-message p, #lose-message p {
-        font-size: 1.2em;
-        margin-bottom: 25px;
-    }
-
-    .emojis span {
-        font-size: 2em; /* Mengurangi ukuran emoji */
-        margin: 0 8px;
-    }
-
-    /* Mode Ujian Kilat */
-    #timed-question-display {
-        font-size: 2.2em;
-        margin-bottom: 20px;
-    }
-
-    #timed-answer-input {
-        width: 85%; /* Lebih fleksibel */
-        padding: 10px 15px;
-        font-size: 1.8em;
-    }
-
-    #timed-challenge-timer {
-        font-size: 1.5em;
-    }
-
-    #timed-challenge-progress {
-        font-size: 1.1em;
-    }
-
-    /* Mode Pilih Jawaban Acak */
-    #choose-question-display {
+    .game-header h1 {
         font-size: 2em;
-        margin-bottom: 25px;
     }
-
-    #answer-choices {
-        gap: 10px; /* Mengurangi jarak antar pilihan */
+    .nav-button {
+        font-size: 1.2em;
+        padding: 10px 20px;
     }
-
-    .choice-button {
+    .level-button {
+        width: 60px;
+        height: 60px;
+        font-size: 1.4em;
+    }
+    .question-text {
+        font-size: 2.5em;
+    }
+    .answer-input {
+        font-size: 2em;
+        width: 120px;
+    }
+    .submit-button {
+        font-size: 1.4em;
         padding: 12px 25px;
-        font-size: 1.3em;
-        min-width: unset; /* Hapus min-width */
-        flex-grow: 1; /* Biarkan tombol membesar mengisi ruang */
-    }
-
-    /* Mode Ingat & Cocokkan */
-    #memorize-questions-list {
-        grid-template-columns: 1fr; /* Satu kolom di layar kecil */
-        gap: 12px;
-    }
-
-    .memorize-item {
-        padding: 12px;
-        font-size: 1em;
-    }
-
-    .match-columns {
-        flex-direction: column; /* Kolom jadi tumpuk di layar kecil */
-        gap: 20px;
-        width: 100%; /* Pastikan mengisi lebar penuh */
-        padding: 0; /* Hapus padding agar kolom match tidak terlalu masuk */
-    }
-
-    .match-column {
-        width: 95%; /* Lebar hampir penuh */
-        margin: 0 auto; /* Tengah kolom */
-        min-height: 200px; /* Kurangi tinggi minimum */
-        padding: 10px; /* Kurangi padding kolom */
-    }
-
-    .match-item {
-        font-size: 1.1em;
-        padding: 10px;
-    }
-
-    /* Perbaikan posisi dan ukuran canvas untuk mode match */
-    #match-canvas {
-        /* Lebar dan tinggi canvas akan diatur via JS berdasarkan match-columns,
-           tapi pastikan posisinya relatif terhadap memorizeMatchArea */
-        left: 0;
-        top: 0;
-        width: 100%; /* Penting: agar canvas mengisi lebar parent */
-        height: 100%; /* Penting: agar canvas mengisi tinggi parent */
     }
 }
 
-/* Untuk layar dengan lebar maksimum 480px (smartphone potrait) */
 @media (max-width: 480px) {
-    body {
-        padding: 10px;
-    }
-
     .container {
-        padding: 15px;
-        border-radius: 15px;
-        max-width: 100%; /* Izinkan container mengisi lebar penuh */
-        margin: 10px auto; /* Kurangi margin atas/bawah */
-    }
-
-    h1 {
-        font-size: 1.8em;
-        margin-bottom: 10px;
-    }
-
-    h2 {
-        font-size: 1.5em;
-        margin-bottom: 10px;
-    }
-
-    h3 {
-        font-size: 1.2em;
-    }
-
-    button {
-        padding: 8px 15px;
-        font-size: 0.95em;
-        margin: 5px 0; /* Margin atas/bawah, tidak ada margin samping untuk tombol blok */
-        width: 100%; /* Tombol full width */
-    }
-
-    #main-menu button {
-        margin-bottom: 10px;
-    }
-
-    #question {
-        font-size: 2em;
-        margin-bottom: 10px;
-    }
-
-    .single-answer-input {
-        width: 90%; /* Hampir full width */
-        font-size: 1.4em;
-        padding: 8px 12px;
-    }
-
-    .answer-box {
-        width: 40px;
-        height: 50px;
-        font-size: 1.8em;
-        border-width: 2px;
-        gap: 8px; /* Kurangi gap antar kotak */
-    }
-    #answer-inputs {
-        gap: 8px;
-    }
-
-    #feedback {
-        font-size: 1.1em;
-        margin-top: 8px;
-    }
-
-    #timer {
-        font-size: 1.2em;
-        margin-top: 10px;
-    }
-
-    #susun-hint {
-        padding: 10px;
-        font-size: 0.9em;
-    }
-    #susun-hint h3 {
-        font-size: 1.1em;
-    }
-
-    #win-message p, #lose-message p {
-        font-size: 1.1em;
-        margin-bottom: 20px;
-    }
-
-    .emojis span {
-        font-size: 1.8em;
-        margin: 0 5px;
-    }
-
-    /* Mode Ujian Kilat */
-    #timed-challenge-area {
         padding: 20px;
     }
-    #timed-question-display {
-        font-size: 1.8em;
-        margin-bottom: 15px;
+    .game-header h1 {
+        font-size: 1.6em;
     }
-
-    #timed-answer-input {
-        width: 95%;
-        font-size: 1.5em;
+    .header-bear {
+        width: 90px;
     }
-
-    #timed-challenge-timer {
-        font-size: 1.3em;
+    .nav-button {
+        width: 100%; /* Tombol navigasi jadi penuh */
     }
-
-    #timed-challenge-progress {
-        font-size: 1em;
-    }
-
-    /* Mode Pilih Jawaban Acak */
-    #choose-question-display {
-        font-size: 1.8em;
-        margin-bottom: 20px;
-    }
-
-    #answer-choices {
-        flex-direction: column; /* Tombol pilihan menjadi tumpuk */
-        gap: 8px;
-    }
-
-    .choice-button {
-        padding: 10px 20px;
+    .level-button {
+        width: 50px;
+        height: 50px;
         font-size: 1.2em;
-        width: 100%; /* Lebar penuh */
     }
+    .question-text {
+        font-size: 2em;
+    }
+    .answer-input {
+        font-size: 1.8em;
+        width: 100px;
+    }
+}
 
-    /* Mode Ingat & Cocokkan */
-    #memorize-match-area {
-        padding: 15px;
-    }
+/* Efek background: Bintang dan Hati */
+body::before, body::after {
+    content: '';
+    position: absolute;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+    z-index: -1;
+}
 
-    #memorize-match-timer {
-        font-size: 1.4em;
-    }
+body::before {
+    top: 5%;
+    left: 5%;
+    width: 100px;
+    height: 100px;
+    background-image: url('assets/images/hati.png'); /* Ganti dengan path gambar hati */
+    background-size: contain;
+    animation: floatHeart 10s infinite ease-in-out;
+}
 
-    .memorize-item {
-        padding: 10px;
-        font-size: 0.9em;
-    }
+body::after {
+    bottom: 10%;
+    right: 8%;
+    width: 80px;
+    height: 80px;
+    background-image: url('assets/images/bintang.png'); /* Ganti dengan path gambar bintang */
+    background-size: contain;
+    animation: floatStar 12s infinite ease-in-out reverse;
+}
 
-    .match-column {
-        width: 98%; /* Hampir full width */
-        min-height: 180px; /* Kurangi tinggi minimum lagi */
-        padding: 8px;
-    }
+@keyframes floatHeart {
+    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+    25% { transform: translateY(-15px) translateX(10px) rotate(5deg); }
+    50% { transform: translateY(0) translateX(0) rotate(0deg); }
+    75% { transform: translateY(15px) translateX(-10px) rotate(-5deg); }
+}
 
-    .match-item {
-        font-size: 1em;
-        padding: 8px;
-    }
+@keyframes floatStar {
+    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+    25% { transform: translateY(10px) translateX(5px) rotate(-3deg); }
+    50% { transform: translateY(0) translateX(0) rotate(0deg); }
+    75% { transform: translateY(-10px) translateX(-5px) rotate(3deg); }
 }
