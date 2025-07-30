@@ -297,7 +297,8 @@ button:disabled {
     color: #4CAF50; /* Hijau */
 }
 
-/* --- Mode Pilih Jawaban Acak --- */
+/* --- Mode Pilih Jawaban Acak (jika ada) --- */
+/* Karena tidak ada di HTML yang diberikan, ini hanya placeholder */
 #choose-answer-area {
     padding: 25px;
     border: 2px solid #b2ebf2; /* Hijau tosca muda */
@@ -476,7 +477,6 @@ button:disabled {
     pointer-events: auto; /* Aktifkan event mouse pada canvas saat drawing */
 }
 
-
 #match-feedback {
     font-size: 1.3em;
     font-weight: bold;
@@ -487,65 +487,117 @@ button:disabled {
 
 
 /* --- Media Queries untuk Responsivitas --- */
+
+/* Untuk layar dengan lebar maksimum 768px (tablet potrait, smartphone landscape) */
 @media (max-width: 768px) {
+    body {
+        padding: 15px; /* Sedikit mengurangi padding body */
+    }
+
     .container {
-        padding: 20px;
+        padding: 25px; /* Mengurangi padding container */
+        border-radius: 18px; /* Sedikit lebih kecil radiusnya */
+        max-width: 95%; /* Izinkan lebih lebar di tablet kecil */
     }
 
     h1 {
-        font-size: 2.2em;
+        font-size: 2.2em; /* Mengurangi ukuran judul utama */
+        margin-bottom: 15px;
     }
 
     h2 {
-        font-size: 1.6em;
+        font-size: 1.8em; /* Mengurangi ukuran sub-judul */
+        margin-bottom: 15px;
+    }
+
+    h3 {
+        font-size: 1.3em; /* Mengurangi ukuran sub-sub-judul */
     }
 
     button {
-        padding: 10px 20px;
-        font-size: 1em;
-        margin: 8px 3px;
+        padding: 10px 20px; /* Mengurangi padding tombol */
+        font-size: 1.1em; /* Mengurangi ukuran font tombol */
+        margin: 8px 3px; /* Mengurangi margin antar tombol */
+        display: block; /* Tombol menu utama menjadi blok agar menumpuk */
+        width: calc(100% - 6px); /* Mengisi lebar penuh dikurangi margin */
+        box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+    }
+    
+    #main-menu button {
+        margin-bottom: 12px; /* Lebih banyak ruang di antara tombol menu utama */
     }
 
     #question {
-        font-size: 2.2em;
+        font-size: 2.5em; /* Mengurangi ukuran font soal */
+        margin-bottom: 15px;
     }
 
     .single-answer-input {
-        width: 120px;
-        font-size: 1.5em;
+        width: 180px; /* Sedikit lebih kecil */
+        padding: 10px 15px;
+        font-size: 1.6em; /* Mengurangi ukuran font input tunggal */
     }
 
     .answer-box {
-        width: 45px;
-        height: 55px;
-        font-size: 1.8em;
+        width: 48px; /* Mengurangi lebar kotak bersusun */
+        height: 58px; /* Mengurangi tinggi kotak bersusun */
+        font-size: 2em; /* Mengurangi ukuran font kotak bersusun */
+        border-width: 2px; /* Border sedikit lebih tipis */
     }
 
-    #memorize-questions-list {
-        grid-template-columns: 1fr; /* Satu kolom di layar kecil */
+    #feedback {
+        font-size: 1.2em;
+        margin-top: 10px;
     }
 
-    .match-columns {
-        flex-direction: column; /* Kolom jadi tumpuk di layar kecil */
-        gap: 20px;
+    #timer {
+        font-size: 1.3em;
+        margin-top: 15px;
     }
 
-    .match-column {
-        width: 95%; /* Lebar hampir penuh */
+    #susun-hint {
+        padding: 12px;
+        font-size: 0.95em;
     }
 
-    .match-item {
-        font-size: 1.1em;
-        padding: 10px;
+    #win-message p, #lose-message p {
+        font-size: 1.2em;
+        margin-bottom: 25px;
     }
 
+    .emojis span {
+        font-size: 2em; /* Mengurangi ukuran emoji */
+        margin: 0 8px;
+    }
+
+    /* Mode Ujian Kilat */
     #timed-question-display {
-        font-size: 2em;
+        font-size: 2.2em;
+        margin-bottom: 20px;
     }
 
     #timed-answer-input {
-        width: 80%;
-        font-size: 1.6em;
+        width: 85%; /* Lebih fleksibel */
+        padding: 10px 15px;
+        font-size: 1.8em;
+    }
+
+    #timed-challenge-timer {
+        font-size: 1.5em;
+    }
+
+    #timed-challenge-progress {
+        font-size: 1.1em;
+    }
+
+    /* Mode Pilih Jawaban Acak */
+    #choose-question-display {
+        font-size: 2em;
+        margin-bottom: 25px;
+    }
+
+    #answer-choices {
+        gap: 10px; /* Mengurangi jarak antar pilihan */
     }
 
     .choice-button {
@@ -554,8 +606,49 @@ button:disabled {
         min-width: unset; /* Hapus min-width */
         flex-grow: 1; /* Biarkan tombol membesar mengisi ruang */
     }
+
+    /* Mode Ingat & Cocokkan */
+    #memorize-questions-list {
+        grid-template-columns: 1fr; /* Satu kolom di layar kecil */
+        gap: 12px;
+    }
+
+    .memorize-item {
+        padding: 12px;
+        font-size: 1em;
+    }
+
+    .match-columns {
+        flex-direction: column; /* Kolom jadi tumpuk di layar kecil */
+        gap: 20px;
+        width: 100%; /* Pastikan mengisi lebar penuh */
+        padding: 0; /* Hapus padding agar kolom match tidak terlalu masuk */
+    }
+
+    .match-column {
+        width: 95%; /* Lebar hampir penuh */
+        margin: 0 auto; /* Tengah kolom */
+        min-height: 200px; /* Kurangi tinggi minimum */
+        padding: 10px; /* Kurangi padding kolom */
+    }
+
+    .match-item {
+        font-size: 1.1em;
+        padding: 10px;
+    }
+
+    /* Perbaikan posisi dan ukuran canvas untuk mode match */
+    #match-canvas {
+        /* Lebar dan tinggi canvas akan diatur via JS berdasarkan match-columns,
+           tapi pastikan posisinya relatif terhadap memorizeMatchArea */
+        left: 0;
+        top: 0;
+        width: 100%; /* Penting: agar canvas mengisi lebar parent */
+        height: 100%; /* Penting: agar canvas mengisi tinggi parent */
+    }
 }
 
+/* Untuk layar dengan lebar maksimum 480px (smartphone potrait) */
 @media (max-width: 480px) {
     body {
         padding: 10px;
@@ -564,48 +657,146 @@ button:disabled {
     .container {
         padding: 15px;
         border-radius: 15px;
+        max-width: 100%; /* Izinkan container mengisi lebar penuh */
+        margin: 10px auto; /* Kurangi margin atas/bawah */
     }
 
     h1 {
         font-size: 1.8em;
+        margin-bottom: 10px;
     }
 
     h2 {
-        font-size: 1.4em;
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+
+    h3 {
+        font-size: 1.2em;
     }
 
     button {
         padding: 8px 15px;
-        font-size: 0.9em;
-        margin: 5px 2px;
+        font-size: 0.95em;
+        margin: 5px 0; /* Margin atas/bawah, tidak ada margin samping untuk tombol blok */
+        width: 100%; /* Tombol full width */
+    }
+
+    #main-menu button {
+        margin-bottom: 10px;
     }
 
     #question {
-        font-size: 1.8em;
+        font-size: 2em;
+        margin-bottom: 10px;
     }
 
     .single-answer-input {
-        width: 100px;
-        font-size: 1.3em;
+        width: 90%; /* Hampir full width */
+        font-size: 1.4em;
+        padding: 8px 12px;
     }
 
     .answer-box {
         width: 40px;
         height: 50px;
-        font-size: 1.5em;
+        font-size: 1.8em;
+        border-width: 2px;
+        gap: 8px; /* Kurangi gap antar kotak */
+    }
+    #answer-inputs {
+        gap: 8px;
     }
 
+    #feedback {
+        font-size: 1.1em;
+        margin-top: 8px;
+    }
+
+    #timer {
+        font-size: 1.2em;
+        margin-top: 10px;
+    }
+
+    #susun-hint {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    #susun-hint h3 {
+        font-size: 1.1em;
+    }
+
+    #win-message p, #lose-message p {
+        font-size: 1.1em;
+        margin-bottom: 20px;
+    }
+
+    .emojis span {
+        font-size: 1.8em;
+        margin: 0 5px;
+    }
+
+    /* Mode Ujian Kilat */
+    #timed-challenge-area {
+        padding: 20px;
+    }
     #timed-question-display {
         font-size: 1.8em;
+        margin-bottom: 15px;
     }
 
     #timed-answer-input {
-        width: 90%;
-        font-size: 1.4em;
+        width: 95%;
+        font-size: 1.5em;
+    }
+
+    #timed-challenge-timer {
+        font-size: 1.3em;
+    }
+
+    #timed-challenge-progress {
+        font-size: 1em;
+    }
+
+    /* Mode Pilih Jawaban Acak */
+    #choose-question-display {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+
+    #answer-choices {
+        flex-direction: column; /* Tombol pilihan menjadi tumpuk */
+        gap: 8px;
     }
 
     .choice-button {
         padding: 10px 20px;
-        font-size: 1.1em;
+        font-size: 1.2em;
+        width: 100%; /* Lebar penuh */
+    }
+
+    /* Mode Ingat & Cocokkan */
+    #memorize-match-area {
+        padding: 15px;
+    }
+
+    #memorize-match-timer {
+        font-size: 1.4em;
+    }
+
+    .memorize-item {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .match-column {
+        width: 98%; /* Hampir full width */
+        min-height: 180px; /* Kurangi tinggi minimum lagi */
+        padding: 8px;
+    }
+
+    .match-item {
+        font-size: 1em;
+        padding: 8px;
     }
 }
