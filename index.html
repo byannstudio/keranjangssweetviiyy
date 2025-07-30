@@ -26,7 +26,11 @@
             <a href="https://x.com/tokoku" target="_blank" class="social-btn"><i class="fab fa-x-twitter"></i> XTR</a>
         </div>
 
-        <button id="openGameBtn" class="action-btn">🎮 Main Game! 👾</button>
+        <div class="game-buttons-section">
+            <button id="openGuessGameBtn" class="action-btn">🎮 Tebak Angka! 👾</button>
+            <button id="openRPSGameBtn" class="action-btn">✂️ Suit Jepang! 📄</button>
+            <button id="openWhacAMoleBtn" class="action-btn">⚡ Whack The Byte! 💥</button>
+        </div>
 
         <div class="folder-wrapper">
             <div class="folder" data-id="produk1">
@@ -83,23 +87,66 @@
         </div>
     </div>
 
-    <div id="gameWindow" class="game-window">
+    <div id="guessGameWindow" class="game-window">
         <div class="window-title-bar">
             <span class="window-title">👾 Guess The Number! 👾</span>
-            <button class="close-btn" id="closeGameBtn">✖</button>
+            <button class="close-btn" data-game-id="guess">✖</button>
         </div>
         <div class="window-content">
             <p class="game-instruction">Aku mikir angka antara 1 sampai 100. Tebak yuk!</p>
             <input type="number" id="guessInput" min="1" max="100" placeholder="Ketik tebakanmu...">
             <button id="checkGuessBtn" class="game-btn">Cek!</button>
-            <p id="gameResult" class="game-message"></p>
-            <button id="resetGameBtn" class="game-btn reset-btn">Main Lagi?</button>
+            <p id="guessGameResult" class="game-message"></p>
+            <button id="resetGuessGameBtn" class="game-btn reset-btn">Main Lagi?</button>
         </div>
     </div>
 
-    <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-menu-open-1065.mp3"></audio> <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-success-alert-2060.mp3"></audio>
-    <audio id="loseSound" src="https://assets.mixkit.co/sfx/preview/mixkit-fail-game-trigger-2351.mp3"></audio>
+    <div id="rpsGameWindow" class="game-window">
+        <div class="window-title-bar">
+            <span class="window-title">✂️ Suit Jepang! 📄</span>
+            <button class="close-btn" data-game-id="rps">✖</button>
+        </div>
+        <div class="window-content">
+            <p class="game-instruction">Pilih di antara Batu, Kertas, Gunting!</p>
+            <div class="rps-choices">
+                <button class="rps-btn" data-choice="batu">✊ Batu</button>
+                <button class="rps-btn" data-choice="kertas">✋ Kertas</button>
+                <button class="rps-btn" data-choice="gunting">✌️ Gunting</button>
+            </div>
+            <p id="rpsResult" class="game-message"></p>
+            <p id="rpsScore" class="game-score">Skor: Kamu <span id="playerScore">0</span> | Komputer <span id="computerScore">0</span></p>
+            <button id="resetRPSGameBtn" class="game-btn reset-btn">Main Lagi?</button>
+        </div>
+    </div>
 
-    <script src="script.js"></script>
+    <div id="whacAMoleGameWindow" class="game-window">
+        <div class="window-title-bar">
+            <span class="window-title">⚡ Whack The Byte! 💥</span>
+            <button class="close-btn" data-game-id="whacAMole">✖</button>
+        </div>
+        <div class="window-content">
+            <p class="game-instruction">Pukul byte yang muncul! Waktu: <span id="wamTimer">30</span>s</p>
+            <div id="wamGrid" class="wam-grid">
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+                <div class="hole"><div class="mole"></div></div>
+            </div>
+            <p id="wamScore" class="game-score">Skor: <span id="wamCurrentScore">0</span></p>
+            <p id="wamResult" class="game-message"></p>
+            <button id="startWhacAMoleBtn" class="game-btn">Mulai!</button>
+            <button id="resetWhacAMoleBtn" class="game-btn reset-btn">Main Lagi?</button>
+        </div>
+    </div>
+
+    <audio id="clickSound" src="assets/sounds/menu-click.mp3"></audio>
+    <audio id="winSound" src="assets/sounds/game-win.mp3"></audio>
+    <audio id="loseSound" src="assets/sounds/game-lose.mp3"></audio>
+    <audio id="whackSound" src="assets/sounds/whack.mp3"></audio> <audio id="popSound" src="assets/sounds/pop.mp3"></audio> <script src="script.js"></script>
 </body>
 </html>
