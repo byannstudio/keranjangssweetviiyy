@@ -1,104 +1,31 @@
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Game Matematika Lucu 💖</title>
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunia Angka Beruang Pink!</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Game Matematika Gemes! 🎀</h1>
+        <header class="game-header">
+            <h1>Selamat Datang di Dunia Angka Beruang Pink!</h1>
+            <img src="assets/images/beruang_pink.png" alt="Beruang Pink Lucu" class="header-bear">
+        </header>
 
-        <div id="main-menu">
-            <button onclick="selectMode('addition')">➕ Penjumlahan Manis</button>
-            <button onclick="selectMode('subtraction')">➖ Pengurangan Ceria</button>
-            <button onclick="startTimedChallenge()">⏰ Ujian Kilat 1 Menit! (Penjumlahan)</button>
-            <button onclick="startMemorizeMatchMode()">🧠 Ingat & Cocokkan! (Penjumlahan)</button>
-        </div>
+        <nav class="game-navigation">
+            <button class="nav-button" id="btnGame1">Game 1: Rumah Beruang Angka</button>
+            <button class="nav-button" id="btnGame3">Game 3: Ujian Kilat 1 Menit</button>
+            <button class="nav-button" id="btnGame4">Game 4: Ingat & Cocokkan</button>
+        </nav>
 
-        <div id="level-menu" class="hidden">
-            <h2>Pilih Tingkat Keisenganmu!</h2>
-            <button onclick="startGame(1)">Level 1: Santai Dulu</button>
-            <button onclick="startGame(2)">Level 2: Waktu Mepeeeet! ⏰</button>
-            <button onclick="startGame(3)">Level 3: Angka Lebih Besar! 🤯</button>
-            <button onclick="startGame(4)">Level 4: Susun Bonus! (Ada Petunjuknya) ✨</button>
-            <button onclick="startGame(5)">Level 5: Susun Asli! (Tanpa Petunjuk) 🏆</button>
-        </div>
+        <main class="game-area" id="gameArea">
+            <p class="welcome-text">Pilih game favoritmu di atas ya!</p>
+        </main>
 
-        <div id="game-area" class="hidden">
-            <div id="susun-hint" class="hidden"></div> 
-            
-            <div id="question"></div>
-            
-            <div id="answer-inputs"></div> 
-
-            <button id="check-button" onclick="checkAnswer()">Yuk, Jawab! ✨</button>
-            <div id="feedback"></div>
-            <div id="timer"></div>
-            <button id="next-question-button" class="hidden" onclick="nextQuestion()">Pertanyaan Selanjutnya! ▶️</button>
-        </div>
-
-        <div id="timed-challenge-area" class="hidden">
-            <h2>Ujian Kilat: Jawab Secepatnya!</h2>
-            <div id="timed-question-display"></div>
-            <input type="number" id="timed-answer-input" placeholder="Jawab di sini..." />
-            <div id="timed-challenge-timer">Waktu: 60 detik</div>
-            <div id="timed-challenge-progress">Soal 0/5</div>
-            <button onclick="submitTimedAnswer()">Kirim Jawaban</button>
-            <div id="timed-challenge-feedback"></div>
-        </div>
-
-        <div id="choose-answer-area" class="hidden">
-            <h2>Pilih Jawaban yang Tepat!</h2>
-            <div id="choose-question-display"></div>
-            <div id="answer-choices">
-                </div>
-            <div id="choose-feedback"></div>
-        </div>
-
-        <div id="memorize-match-area" class="hidden">
-            <h2>Ingat & Cocokkan!</h2>
-            <div id="memorize-match-timer">Waktu: 60 detik</div>
-
-            <div id="memorize-phase" class="hidden">
-                <h3>Fase Mengingat Soal & Jawaban:</h3>
-                <div id="memorize-questions-list">
-                    </div>
-            </div>
-
-            <div id="match-phase" class="hidden">
-                <h3>Fase Mencocokkan: Tarik Garis!</h3>
-                <div class="match-columns">
-                    <div id="match-questions-column" class="match-column">
-                        </div>
-                    <div id="match-answers-column" class="match-column">
-                        </div>
-                </div>
-                <canvas id="match-canvas"></canvas>
-                <button id="check-match-button" onclick="checkMatches()">Periksa Cocokkan! ✅</button>
-                <div id="match-feedback"></div>
-            </div>
-        </div>
-
-        <div id="win-message" class="hidden">
-            <h2>Horeee! Kamu Hebat! 🎉💖🐻</h2>
-            <p>Dapat hadiah spesial dari kami!</p>
-            <div class="emojis">
-                <span>🎇</span>
-                <span>🎁</span>
-                <span>🎀</span>
-                <span>💖</span>
-                <span>🐻</span>
-            </div>
-            <button onclick="resetGame()">Main Lagi, Yuk! 🥰</button>
-        </div>
-
-         <div id="lose-message" class="hidden">
-            <h2>Waktu Habis! Atau Ujian Selesai! 😞</h2>
-            <p id="lose-text"></p>
-            <button onclick="resetGame()">Coba Lagi! 💪</button>
-        </div>
+        <footer class="game-footer">
+            <p>&copy; 2025 Dunia Angka Beruang Pink - Dibuat dengan ❤</p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
