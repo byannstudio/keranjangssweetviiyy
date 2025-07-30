@@ -17,15 +17,19 @@ body {
     font-family: var(--font-primary);
     background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; /* Tetap flex untuk justify-content center */
+    flex-direction: column; /* Mengatur item dalam kolom */
+    justify-content: flex-start; /* Konten dimulai dari atas */
+    /* align-items: center;  <--- Hapus ini */
     min-height: 100vh;
-    color: #5B3B70; /* Warna teks umum */
-    overflow-x: hidden; /* Mencegah scroll horizontal */
+    color: #5B3B70;
+    overflow-x: hidden;
+    /* Tambahkan padding agar footer tidak mepet bawah layar */
+    padding-bottom: 30px;
 }
 
 .container {
+    /* Tetap seperti sebelumnya, tanpa overflow: hidden; */
     background-color: var(--white-translucent);
     border-radius: 25px;
     box-shadow: var(--shadow-effect);
@@ -36,7 +40,10 @@ body {
     box-sizing: border-box;
     border: 5px solid var(--pink-dark);
     position: relative;
-    /* overflow: hidden; <--- BARIS INI DIHAPUS */
+    /* margin-top: auto; dan margin-bottom: auto; bisa ditambahkan jika ingin tetap di tengah
+       tapi memungkinkan scroll jika kontennya panjang */
+    margin-top: 30px; /* Memberi sedikit jarak dari atas */
+    margin-bottom: 30px; /* Memberi sedikit jarak dari bawah */
 }
 
 /* Header */
@@ -92,13 +99,14 @@ body {
     background-color: var(--pink-light);
     border: 3px dashed var(--pink-dark);
     border-radius: 15px;
-    min-height: 350px; /* Tinggi minimal area game */
+    /* min-height: 350px; <--- BARIS INI DIHAPUS */
     display: flex;
+    flex-direction: column; /* Ubah ini juga agar konten di dalamnya mudah diatur */
     justify-content: center;
     align-items: center;
     padding: 20px;
     box-sizing: border-box;
-    position: relative; /* Untuk penempatan elemen di dalamnya */
+    position: relative;
 }
 
 .welcome-text {
