@@ -1,202 +1,314 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const gameSelectionDiv = document.getElementById('game-selection');
-    const gameAreaDiv = document.getElementById('game-area');
-    const gameOverScreenDiv = document.getElementById('game-over-screen');
+let mode = 'addition';
+let level = 1;
+let currentQuestion = {};
+let timerInterval;
+let timeLeft = 10;
+let score = 0;
+const WIN_THRESHOLD = 5;
 
-    const startSumGameBtn = document.getElementById('start-sum-game');
-    const startSubGameBtn = document.getElementById('start-sub-game');
-    const submitAnswerBtn = document.getElementById('submit-answer');
-    const nextLevelBtn = document.getElementById('next-level');
-    const restartGameBtn = document.getElementById('restart-game');
-    const playAgainBtn = document.getElementById('play-again');
+const mainMenu = document.getElementById('main-menu');
+const levelMenu = document.getElementById('level-menu');
+const gameArea = document.getElementById('game-area');
+const winMessage = document.getElementById('win-message');
+const questionElement = document.getElementById('question');
+const susunHintElement = document.getElementById('susun-hint');
+const answerInputsContainer = document.getElementById('answer-inputs');
+const feedbackElement = document.getElementById('feedback');
+const timerElement = document.getElementById('timer');
+const checkButton = document.getElementById('check-button');
+const nextQuestionButton = document.getElementById('next-question-button');
 
-    const currentLevelSpan = document.getElementById('current-level');
-    const currentScoreSpan = document.getElementById('current-score');
-    const timerSpan = document.getElementById('time-left');
-    const timerDisplay = document.getElementById('timer');
-    const questionText = document.getElementById('question-text');
-    const answerInput = document.getElementById('answer-input');
-    const feedbackMessage = document.getElementById('feedback-message');
-    const finalScoreSpan = document.getElementById('final-score');
+// Variabel untuk menyimpan referensi kotak input saat ini
+let answerBoxes = [];
+let singleAnswerInput = null; // Untuk input tunggal di level 1-3
 
-    let gameType = ''; // 'sum' or 'sub'
-    let currentLevel = 1;
-    let score = 0;
-    let correctAnswer = 0;
-    let timeLeft = 0;
-    let timerInterval;
-    let questionCount = 0; // Untuk level cepat
+function selectMode(selectedMode) {
+    mode = selectedMode;
+    mainMenu.classList.add('hidden');
+    levelMenu.classList.remove('hidden');
+}
 
-    const MAX_QUESTIONS_PER_LEVEL = 5; // Jumlah soal per level (kecuali level cepat)
-    const MAX_LEVEL_SUM = 3;
-    const MAX_LEVEL_SUB = 3;
-    const FAST_LEVEL_TIME = 10; // Detik untuk level cepat
-    const FAST_LEVEL_QUESTIONS = 10; // Soal untuk level cepat
+function startGame(selectedLevel) {
+    level = selectedLevel;
+    score = 0;
+    levelMenu.classList.add('hidden');
+    gameArea.classList.remove('hidden');
+    nextQuestion();
+}
 
-    // --- Fungsi Utama Game ---
+function createAnswerBoxes(numDigits) {
+    answerInputsContainer.innerHTML = ''; // Bersihkan container sebelumnya
+    answerBoxes = []; // Reset array kotak jawaban
+    singleAnswerInput = null; // Pastikan input tunggal direset
 
-    function startGame(type) {
-        gameType = type;
-        currentLevel = 1;
-        score = 0;
-        questionCount = 0;
-        updateDisplay();
-        gameSelectionDiv.classList.add('hidden');
-        gameAreaDiv.classList.remove('hidden');
-        gameOverScreenDiv.classList.add('hidden');
-        nextLevelBtn.classList.add('hidden');
-        restartGameBtn.classList.add('hidden');
-        generateQuestion();
+    for (let i = 0; i < numDigits; i++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.maxLength = 1;
+        input.min = 0;
+        input.max = 9;
+        input.classList.add('answer-box');
+        input.id = `answer-box-${i}`;
+        answerInputsContainer.prepend(input);
+        answerBoxes.push(input);
     }
 
-    function generateQuestion() {
-        answerInput.value = ''; // Kosongkan input
-        answerInput.focus(); // Fokuskan kembali input
-        feedbackMessage.textContent = ''; // Hapus pesan feedback
+    answerBoxes.reverse(); // Balik urutan agar indeks 0 adalah kotak paling kiri
 
-        let num1, num2;
-        let question;
+    answerBoxes.forEach((box, index) => {
+        box.addEventListener('input', (event) => {
+            event.target.value = event.target.value.replace(/[^0-9]/g, '');
+            if (event.target.value.length === 1 && index < answerBoxes.length - 1) {
+                answerBoxes[index + 1].focus();
+            }
+        });
 
-        if (gameType === 'sum') {
-            if (currentLevel <= MAX_LEVEL_SUM) { // Level penjumlahan normal
-                num1 = Math.floor(Math.random() * 10) + 1; // 1-10
-                num2 = Math.floor(Math.random() * 10) + 1; // 1-10
-                correctAnswer = num1 + num2;
-                question = `${num1} + ${num2} = ?`;
-            } else if (currentLevel === MAX_LEVEL_SUM + 1) { // Level penjumlahan cepat (Level 4)
-                num1 = Math.floor(Math.random() * 10) + 1; // 1-10
-                num2 = Math.floor(Math.random() * 10) + 1; // 1-10
-                correctAnswer = num1 + num2;
-                question = `${num1} + ${num2} = ?`;
-                startFastLevelTimer();
-                timerDisplay.classList.remove('hidden');
+        box.addEventListener('keydown', (event) => {
+            if (event.key === 'Backspace' && event.target.value === '' && index > 0) {
+                answerBoxes[index - 1].focus();
             }
-        } else if (gameType === 'sub') {
-            if (currentLevel <= MAX_LEVEL_SUB) { // Level pengurangan normal
-                num1 = Math.floor(Math.random() * 10) + 1; // 1-10
-                num2 = Math.floor(Math.random() * num1) + 1; // Pastikan num1 >= num2
-                correctAnswer = num1 - num2;
-                question = `${num1} - ${num2} = ?`;
-            } else if (currentLevel === MAX_LEVEL_SUB + 1) { // Level pengurangan cepat (Level 4)
-                num1 = Math.floor(Math.random() * 10) + 1; // 1-10
-                num2 = Math.floor(Math.random() * num1) + 1; // Pastikan num1 >= num2
-                correctAnswer = num1 - num2;
-                question = `${num1} - ${num2} = ?`;
-                startFastLevelTimer();
-                timerDisplay.classList.remove('hidden');
+            if (event.target.value.length >= 1 && event.key !== 'Backspace' && event.key !== 'Delete' && !event.ctrlKey && !event.metaKey) {
+                event.preventDefault();
             }
-        }
-        questionText.textContent = question;
-        updateDisplay();
+        });
+
+        box.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && index === answerBoxes.length - 1) {
+                checkAnswer();
+            }
+        });
+    });
+
+    if (answerBoxes.length > 0) {
+        answerBoxes[0].focus();
     }
+}
 
-    function checkAnswer() {
-        const userAnswer = parseInt(answerInput.value);
-        if (isNaN(userAnswer)) {
-            feedbackMessage.textContent = 'Masukkan angka!';
-            return;
+function getAnswerFromBoxes() {
+    let userAnswerString = '';
+    answerBoxes.forEach(box => {
+        userAnswerString += box.value;
+    });
+    return parseInt(userAnswerString);
+}
+
+
+function generateQuestion() {
+    let num1, num2, answer;
+
+    susunHintElement.classList.add('hidden'); // Sembunyikan petunjuk secara default
+    questionElement.classList.remove('question-fancy'); // Hapus gaya fancy
+    questionElement.innerHTML = ''; // Bersihkan innerHTML
+    answerInputsContainer.innerHTML = ''; // Bersihkan kontainer input
+    answerBoxes = []; // Reset array kotak jawaban
+    singleAnswerInput = null; // Reset single input
+
+    if (level >= 4) { // Level 4 & 5 (susun)
+        num1 = Math.floor(Math.random() * 90) + 10;
+        num2 = Math.floor(Math.random() * 90) + 10;
+
+        if (mode === 'subtraction' && num2 > num1) {
+            [num1, num2] = [num2, num1];
+        } else if (mode === 'addition' && (num1 + num2) > 199) { // Batasi hasil penjumlahan agar tidak terlalu besar (maksimal 199)
+            // Kalau terlalu besar, buat ulang
+            do {
+                num1 = Math.floor(Math.random() * 90) + 10;
+                num2 = Math.floor(Math.random() * 90) + 10;
+            } while ((num1 + num2) > 199);
         }
 
-        if (userAnswer === correctAnswer) {
-            score += 10;
-            feedbackMessage.textContent = 'Benar! 🎉';
+        answer = mode === 'addition' ? num1 + num2 : num1 - num2;
+        
+        let operator = mode === 'addition' ? '+' : '-';
+        let questionText = `${String(num1).padStart(2, ' ')}\n${operator} ${String(num2).padStart(2, ' ')}\n-----\n  ?`;
+        questionElement.textContent = questionText;
+        currentQuestion = { num1, num2, correctAnswer: answer, operator };
+
+        const numDigits = String(answer).length;
+        createAnswerBoxes(numDigits);
+
+        if (level === 4) {
+            susunHintElement.classList.remove('hidden');
+            let hintContent = `
+                <h3>Yuk, Intip Cara Susunnya! 📝</h3>
+                <p>1. Mulai hitung dari angka paling **kanan** (satuan): <strong>${num1 % 10} ${operator} ${num2 % 10}</strong>.</p>
+                <p>2. Tulis hasil satuannya di kotak jawaban paling kanan.</p>
+                <p>3. Kalau ada sisa (puluhan dari penjumlahan), ingat-ingat untuk ditambahkan ke hitungan berikutnya.</p>
+                <p>4. Lanjut hitung angka di sebelahnya (puluhan), dst.</p>
+                <p>Ingat, selalu mulai dari belakang ya! 😉</p>
+            `;
+            susunHintElement.innerHTML = hintContent;
+        }
+
+    } else { // Level 1, 2, 3 (pertanyaan biasa, pakai 1 input box)
+        if (level === 3) {
+            num1 = Math.floor(Math.random() * 90) + 10;
+            num2 = Math.floor(Math.random() * 90) + 10;
         } else {
-            feedbackMessage.textContent = `Salah! Jawaban: ${correctAnswer} 🙁`;
+            num1 = Math.floor(Math.random() * 10) + 1;
+            num2 = Math.floor(Math.random() * 10) + 1;
         }
 
-        updateDisplay();
+        if (mode === 'subtraction' && num2 > num1) [num1, num2] = [num2, num1];
+        
+        answer = mode === 'addition' ? num1 + num2 : num1 - num2;
+        
+        // Tampilkan soal dengan gaya fancy
+        questionElement.classList.add('question-fancy');
+        let operatorSymbol = mode === 'addition' ? '+' : '-';
+        questionElement.innerHTML = `
+            <span class="emoji-side">✨</span>
+            ${num1} ${operatorSymbol} ${num2} = ?
+            <span class="emoji-side">💖</span>
+        `;
+        
+        currentQuestion = { num1, num2, correctAnswer: answer };
 
-        // Logika untuk level cepat
-        if ((gameType === 'sum' && currentLevel === MAX_LEVEL_SUM + 1) || (gameType === 'sub' && currentLevel === MAX_LEVEL_SUB + 1)) {
-            questionCount++;
-            if (questionCount < FAST_LEVEL_QUESTIONS && timeLeft > 0) {
-                setTimeout(generateQuestion, 1000); // Lanjut soal setelah 1 detik feedback
-            } else {
-                endGame();
-            }
-        } else {
-            // Logika untuk level normal
-            setTimeout(() => {
-                questionCount++;
-                if (questionCount < MAX_QUESTIONS_PER_LEVEL) {
-                    generateQuestion();
-                } else {
-                    currentLevel++;
-                    if ((gameType === 'sum' && currentLevel <= MAX_LEVEL_SUM + 1) || (gameType === 'sub' && currentLevel <= MAX_LEVEL_SUB + 1)) {
-                         // Masuk ke level berikutnya, atau level cepat
-                        questionCount = 0; // Reset question count untuk level baru
-                        feedbackMessage.textContent = '';
-                        if ((gameType === 'sum' && currentLevel === MAX_LEVEL_SUM + 1) || (gameType === 'sub' && currentLevel === MAX_LEVEL_SUB + 1)) {
-                            alert('Selamat! Anda masuk ke Level Cepat!');
-                            startFastLevelTimer();
-                        }
-                        generateQuestion();
-                    } else {
-                        endGame(); // Game selesai jika semua level dilewati
-                    }
-                }
-            }, 1000); // Tunda sebentar sebelum soal baru
-        }
+        // Buat satu kotak input biasa (seperti sebelumnya)
+        singleAnswerInput = document.createElement('input');
+        singleAnswerInput.type = 'number';
+        singleAnswerInput.id = 'answer'; // Pastikan ID ini unik atau sesuaikan
+        singleAnswerInput.placeholder = 'Jawab di sini, yaaa...';
+        singleAnswerInput.classList.add('single-answer-input'); // Tambahkan class baru
+        answerInputsContainer.appendChild(singleAnswerInput);
+        
+        singleAnswerInput.focus();
+        singleAnswerInput.addEventListener('keypress', handleKeyPress);
+    }
+    
+    // Kosongkan semua input box yang relevan
+    if (singleAnswerInput) {
+        singleAnswerInput.value = '';
+    } else {
+        answerBoxes.forEach(box => box.value = '');
     }
 
-    function updateDisplay() {
-        currentLevelSpan.textContent = currentLevel;
-        currentScoreSpan.textContent = score;
-        timerSpan.textContent = timeLeft;
+    feedbackElement.textContent = '';
+    checkButton.classList.remove('hidden');
+    nextQuestionButton.classList.add('hidden');
+    
+    // Fokuskan input yang relevan
+    if (singleAnswerInput) {
+        singleAnswerInput.focus();
+    } else if (answerBoxes.length > 0) {
+        answerBoxes[0].focus();
     }
+}
 
-    function startFastLevelTimer() {
-        clearInterval(timerInterval); // Hapus timer sebelumnya jika ada
-        timeLeft = FAST_LEVEL_TIME;
-        timerDisplay.classList.remove('hidden');
-        timerSpan.textContent = timeLeft;
+function nextQuestion() {
+    if (score >= WIN_THRESHOLD) {
+        showWinMessage();
+        return;
+    }
+    generateQuestion();
 
+    if (level === 2) {
+        timeLeft = 10;
+        timerElement.textContent = `Waktu: ${timeLeft} detik ⏳`;
+        clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             timeLeft--;
-            timerSpan.textContent = timeLeft;
-            if (timeLeft <= 0) {
+            timerElement.textContent = `Waktu: ${timeLeft} detik ⏳`;
+            if (timeLeft <= 3 && timeLeft > 0) {
+                timerElement.style.color = 'red';
+            } else {
+                timerElement.style.color = '#e83e8c';
+            }
+
+            if (timeLeft === 0) {
                 clearInterval(timerInterval);
-                endGame(); // Game berakhir jika waktu habis
+                feedbackElement.textContent = '⏰ Waktu Habis! Yuk, coba lagi!';
+                checkButton.classList.add('hidden');
+                nextQuestionButton.classList.remove('hidden');
             }
         }, 1000);
+    } else {
+        timerElement.textContent = '';
+        clearInterval(timerInterval);
     }
+}
 
-    function endGame() {
-        clearInterval(timerInterval); // Berhenti timer
-        gameAreaDiv.classList.add('hidden');
-        gameOverScreenDiv.classList.remove('hidden');
-        finalScoreSpan.textContent = score;
-        timerDisplay.classList.add('hidden'); // Sembunyikan timer di akhir game
-    }
+function checkAnswer() {
+    let userAnswer;
 
-    function resetGame() {
-        clearInterval(timerInterval); // Pastikan timer berhenti
-        gameSelectionDiv.classList.remove('hidden');
-        gameAreaDiv.classList.add('hidden');
-        gameOverScreenDiv.classList.add('hidden');
-        currentLevel = 1;
-        score = 0;
-        timeLeft = 0;
-        questionCount = 0;
-        updateDisplay();
-        feedbackMessage.textContent = '';
-        timerDisplay.classList.add('hidden');
-    }
-
-    // --- Event Listeners ---
-    startSumGameBtn.addEventListener('click', () => startGame('sum'));
-    startSubGameBtn.addEventListener('click', () => startGame('sub'));
-    submitAnswerBtn.addEventListener('click', checkAnswer);
-    answerInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            checkAnswer();
+    if (level >= 4) { // Untuk level susun, ambil jawaban dari kotak-kotak
+        userAnswer = getAnswerFromBoxes();
+        const allFilled = answerBoxes.every(box => box.value !== '');
+        if (!allFilled) {
+            feedbackElement.textContent = 'Isi semua kotak jawaban dulu, ya! 🤔';
+            return;
         }
-    });
-    nextLevelBtn.addEventListener('click', () => {
-        // Logika next level saat ini dihandle di checkAnswer untuk soal normal
-        // Tombol ini mungkin tidak terlalu diperlukan dengan alur saat ini,
-        // atau bisa diaktifkan untuk memulai level berikutnya secara manual jika mau
-    });
-    restartGameBtn.addEventListener('click', resetGame);
-    playAgainBtn.addEventListener('click', resetGame);
+    } else { // Untuk level biasa, ambil dari satu input
+        if (!singleAnswerInput) { // Pastikan input ada
+            feedbackElement.textContent = 'Ada masalah dengan input jawaban. Coba lagi!';
+            return;
+        }
+        userAnswer = parseInt(singleAnswerInput.value);
+        if (isNaN(userAnswer)) {
+            feedbackElement.textContent = 'Isi jawabanmu dulu, ya! 🤔';
+            return;
+        }
+    }
+
+    if (userAnswer === currentQuestion.correctAnswer) {
+        feedbackElement.textContent = '💖 Yeay, Benar! Kamu Hebat! 🎉';
+        score++;
+        if (level === 2) clearInterval(timerInterval);
+        checkButton.classList.add('hidden');
+        nextQuestionButton.classList.remove('hidden');
+    } else {
+        feedbackElement.textContent = '❌ Ups, salah! Jangan nyerah, coba lagi! 😅';
+        if (singleAnswerInput) {
+            singleAnswerInput.value = '';
+            singleAnswerInput.focus();
+        } else {
+            answerBoxes.forEach(box => box.value = '');
+            if (answerBoxes.length > 0) {
+                answerBoxes[0].focus();
+            }
+        }
+    }
+}
+
+function handleKeyPress(event) {
+    // Ini hanya untuk Level 1, 2, 3 (satu input)
+    // Event listener ini sekarang ditambahkan langsung ke `singleAnswerInput` di `generateQuestion`
+    if (event.key === 'Enter' && singleAnswerInput && singleAnswerInput.value !== '') {
+        if (!checkButton.classList.contains('hidden')) {
+            checkAnswer();
+        } 
+        else if (!nextQuestionButton.classList.contains('hidden')) {
+            nextQuestion();
+        }
+    }
+    // Untuk Level 4/5, Enter diatur per kotak di `createAnswerBoxes`
+}
+
+function showWinMessage() {
+    gameArea.classList.add('hidden');
+    winMessage.classList.remove('hidden');
+    clearInterval(timerInterval);
+    // Hapus event listener keypress dari input
+    if (singleAnswerInput) {
+        singleAnswerInput.removeEventListener('keypress', handleKeyPress);
+    }
+    answerBoxes.forEach(box => box.removeEventListener('keypress', handleKeyPress));
+}
+
+function resetGame() {
+    winMessage.classList.add('hidden');
+    mainMenu.classList.remove('hidden');
+    score = 0;
+    feedbackElement.textContent = '';
+    timerElement.textContent = '';
+    answerInputsContainer.innerHTML = ''; // Pastikan kotak jawaban dihapus
+    answerBoxes = []; // Reset array
+    singleAnswerInput = null; // Reset input tunggal
+}
+
+// Inisialisasi awal
+document.addEventListener('DOMContentLoaded', () => {
+    levelMenu.classList.add('hidden');
+    gameArea.classList.add('hidden');
+    winMessage.classList.add('hidden');
 });
