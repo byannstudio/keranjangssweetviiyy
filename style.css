@@ -185,10 +185,16 @@ body {
 }
 
 /* Action Button (for mini game) */
+.game-buttons-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px; /* Jarak antar tombol game */
+    margin-bottom: 35px;
+}
+
 .action-btn {
-    display: block;
     width: fit-content;
-    margin: 0 auto 35px auto; /* Tengah dan jarak ke bawah */
     background-color: #8A2BE2; /* Blue Violet */
     color: #FFD700; /* Gold */
     padding: 15px 30px;
@@ -553,6 +559,18 @@ body {
     box-shadow: 5px 5px 0px #FFD700; /* Gold */
 }
 
+.game-score {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.1em;
+    margin-top: 15px;
+    color: #4B0082;
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.7);
+}
+.game-score span {
+    color: #FF1493;
+    font-size: 1.2em;
+}
+
 .game-message {
     font-family: 'VT323', monospace;
     font-size: 1.4em;
@@ -569,6 +587,106 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- RPS Game Specific Styles --- */
+.rps-choices {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.rps-btn {
+    background-color: #FFD700;
+    color: #8A2BE2;
+    padding: 20px; /* Lebih besar untuk ikon */
+    border: 3px solid #FF1493;
+    border-radius: 50%; /* Bulat */
+    font-size: 30px; /* Ukuran ikon */
+    cursor: pointer;
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Springy */
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol'; /* Untuk emoji */
+}
+
+.rps-btn:hover {
+    background-color: #FF69B4;
+    color: white;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 5px 5px 0px #00FFFF;
+}
+.rps-btn:active {
+    transform: translateY(2px) scale(0.9);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+}
+
+/* --- Whac-A-Mole Game Specific Styles --- */
+.wam-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+    width: 300px; /* Ukuran grid */
+    height: 300px;
+    margin: 20px auto;
+    background-color: #c0c0c0; /* Warna abu-abu ala Windows */
+    border: 4px outset #ffffff; /* Efek 3D tombol lama */
+    padding: 10px;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hole {
+    background-color: #4B0082; /* Indigo, warna lubang */
+    border: 2px inset #ffffff; /* Efek 3D lubang */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Mole muncul dari bawah */
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+}
+
+.mole {
+    background-color: #FF1493; /* Deep Pink, warna byte/mole */
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -100%; /* Sembunyi di bawah */
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="%2300FFFF" d="M16 0L0 16L16 32L32 16L16 0Z"/><circle cx="16" cy="16" r="4" fill="%23FFD700"/></svg>') 16 16, pointer; /* Kursor palu */
+    transition: bottom 0.2s ease-out; /* Animasi pop-up */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    border: 2px solid #FFD700; /* Gold border */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+    content: "🐛"; /* Default content */
+}
+
+.mole.active {
+    bottom: 0; /* Muncul */
+    /* Animasi pop in dan out */
+    animation: molePop 0.8s forwards; /* Forwards agar tetap di posisi akhir */
+}
+@keyframes molePop {
+    0% { bottom: -100%; transform: scale(0.8); opacity: 0; }
+    30% { bottom: 0; transform: scale(1.1); opacity: 1; } /* Lebih besar sedikit saat muncul */
+    50% { bottom: 0; transform: scale(1); opacity: 1; }
+    100% { bottom: 0; transform: scale(1); opacity: 1; }
+}
+
+.mole.hit {
+    background-color: #008000; /* Hijau saat terpukul */
+    transform: scale(0.8);
+    opacity: 0;
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out, background-color 0.1s ease-out;
+}
 
 /* Responsive adjustments */
 @media screen and (max-width: 600px) {
@@ -602,6 +720,10 @@ body {
 
     .social-btn i {
         font-size: 16px;
+    }
+
+    .game-buttons-section {
+        flex-direction: column; /* Tombol game tumpuk di mobile */
     }
 
     .action-btn {
@@ -662,5 +784,15 @@ body {
 
     .game-message {
         font-size: 1.2em;
+    }
+
+    .rps-btn {
+        padding: 15px;
+        font-size: 25px;
+    }
+
+    .wam-grid {
+        width: 280px;
+        height: 280px;
     }
 }
