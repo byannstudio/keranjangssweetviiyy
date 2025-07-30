@@ -2,7 +2,7 @@
 body {
     cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23FFD700" stroke="%238A2BE2" stroke-width="2" d="M2.21,21.79L12,2.21L21.79,21.79H2.21Z"/><circle cx="12" cy="12" r="2" fill="%23FF69B4"/></svg>') 12 12, auto; /* Gold triangle with pink dot */
     -webkit-font-smoothing: antialiased; /* Untuk teks yang lebih halus */
-    -moz-osx-osx-font-smoothing: grayscale;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Base Styles: Latar belakang lebih ke arah gradasi holografik/plastik */
@@ -655,7 +655,8 @@ body {
     border-radius: 50%;
     position: absolute;
     bottom: -100%; /* Sembunyi di bawah */
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="%2300FFFF" d="M16 0L0 16L16 32L32 16L16 0Z"/><circle cx="16" cy="16" r="4" fill="%23FFD700"/></svg>') 16 16, pointer; /* Kursor palu */
+    /* Kursor palu untuk game Whac-A-Mole */
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="%2300FFFF" d="M16 0L0 16L16 32L32 16L16 0Z"/><circle cx="16" cy="16" r="4" fill="%23FFD700"/></svg>') 16 16, pointer;
     transition: bottom 0.2s ease-out; /* Animasi pop-up */
     box-shadow: 0 5px 10px rgba(0,0,0,0.5);
     border: 2px solid #FFD700; /* Gold border */
@@ -666,7 +667,7 @@ body {
     align-items: center;
     color: white;
     text-shadow: 1px 1px 0px rgba(0,0,0,0.4);
-    content: "🐛"; /* Default content */
+    /* content: "🐛"; Default content, tapi akan diisi via JS */
 }
 
 .mole.active {
