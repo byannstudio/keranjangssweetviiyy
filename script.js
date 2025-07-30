@@ -1,925 +1,575 @@
-// --- Variabel Global untuk Mengatur Status Game ---
-let mode = 'addition'; // Mode default: 'addition' (penjumlahan), bisa 'subtraction'
-let level = 1; // Level default: 1
-let currentQuestion = {}; // Objek untuk menyimpan detail soal saat ini (angka, jawaban benar, dll.)
-let score = 0; // Skor pemain di mode game biasa
-const WIN_THRESHOLD = 5; // Jumlah jawaban benar untuk menang di mode level biasa (bisa disesuaikan)
+// --- Elemen HTML Utama ---
+const gameArea = document.getElementById('gameArea');
+const btnGame1 = document.getElementById('btnGame1');
+const btnGame3 = document.getElementById('btnGame3');
+const btnGame4 = document.getElementById('btnGame4');
 
-// --- Variabel untuk Timer Game Biasa (Level 2) ---
-let timerInterval; // ID interval untuk timer
-let timeLeft = 10; // Waktu tersisa untuk Level 2
+// --- Objek Audio (Pastikan file suara ada di assets/sounds/) ---
+const audioCorrect = new Audio('assets/sounds/benar.mp3'); // Suara benar
+const audioWrong = new Audio('assets/sounds/salah.mp3');   // Suara salah
+const audioCelebrate = new Audio('assets/sounds/celebrate.mp3'); // Suara perayaan untuk lebih dari 5 jawaban
 
-// --- Variabel untuk Mode Ujian Kilat ---
-let timedChallengeTimer; // ID interval untuk timer ujian kilat
-let timedChallengeTimeLeft = 60; // Waktu total untuk ujian kilat (1 menit)
-let timedChallengeQuestions = []; // Array untuk menyimpan soal dan jawaban dari ujian kilat
-let currentTimedQuestionIndex = 0; // Indeks soal ujian kilat yang sedang aktif
-const MAX_TIMED_QUESTIONS = 5; // Jumlah soal di ujian kilat
-let timedChallengeCorrectCount = 0; // Jumlah jawaban benar di ujian kilat
-
-// --- Variabel untuk Mode Ingat & Cocokkan ---
-let memorizeMatchTimer; // ID interval untuk timer mode ingat & cocokkan
-let memorizeMatchTimeLeft = 60; // Waktu total untuk kedua fase (mengingat + mencocokkan)
-let memorizeQuestionsData = []; // Array untuk menyimpan data soal dan jawaban yang harus diingat
-let currentMemorizeMatches = []; // Array untuk menyimpan pasangan yang sudah dicocokkan pengguna
-let selectedMatchElement = null; // Elemen 'match-item' yang sedang dipilih (jika menggunakan klik, sekarang diganti drag)
-
-// --- Variabel untuk Fitur Gambar Garis Manual (Drag-to-Draw) di Mode Ingat & Cocokkan ---
-let canvas; // Referensi ke elemen HTML <canvas>
-let ctx; // Konteks 2D dari canvas untuk menggambar
-let canvasRect; // Objek DOMRect dari memorizeMatchArea, digunakan untuk offset koordinat
-let isDrawing = false; // Flag: true jika pengguna sedang drag mouse untuk menggambar garis
-let startElement = null; // Elemen 'match-item' tempat drag dimulai
-let currentMouseX, currentMouseY; // Posisi mouse saat ini (untuk garis sementara)
-let startPoint = { x: 0, y: 0 }; // Koordinat awal untuk menggambar garis
-
-// --- Referensi Elemen HTML (cached untuk performa) ---
-const mainMenu = document.getElementById('main-menu');
-const levelMenu = document.getElementById('level-menu');
-const gameArea = document.getElementById('game-area');
-const winMessage = document.getElementById('win-message');
-const loseMessage = document.getElementById('lose-message');
-const loseTextElement = document.getElementById('lose-text');
-
-const questionElement = document.getElementById('question');
-const susunHintElement = document.getElementById('susun-hint');
-const answerInputsContainer = document.getElementById('answer-inputs');
-const feedbackElement = document.getElementById('feedback');
-const timerElement = document.getElementById('timer');
-const checkButton = document.getElementById('check-button');
-const nextQuestionButton = document.getElementById('next-question-button');
-
-let answerBoxes = []; // Array untuk input box digit (untuk level bersusun)
-let singleAnswerInput = null; // Referensi untuk input box tunggal
-
-// --- Elemen Ujian Kilat ---
-const timedChallengeArea = document.getElementById('timed-challenge-area');
-const timedQuestionDisplay = document.getElementById('timed-question-display');
-const timedAnswerInput = document.getElementById('timed-answer-input');
-const timedChallengeTimerElement = document.getElementById('timed-challenge-timer');
-const timedChallengeProgressElement = document.getElementById('timed-challenge-progress');
-const timedChallengeFeedbackElement = document.getElementById('timed-challenge-feedback');
-
-// --- Elemen Pilih Jawaban Acak (Fase Setelah Ujian Kilat) ---
-// (Ini sepertinya tidak ada di HTML yang diberikan, mungkin ini adalah mode yang berbeda atau salah interpretasi.
-// Saya akan abaikan bagian ini untuk saat ini, jika diperlukan, bisa ditambahkan)
-// const chooseAnswerArea = document.getElementById('choose-answer-area');
-// const chooseQuestionDisplay = document.getElementById('choose-question-display');
-// const answerChoicesContainer = document.getElementById('answer-choices');
-// const chooseFeedbackElement = document.getElementById('choose-feedback');
-// let currentChooseQuestionIndex = 0;
-// let displayedChooseQuestions = [];
-// let chooseCorrectCount = 0;
-
-// --- Elemen Ingat & Cocokkan ---
-const memorizeMatchArea = document.getElementById('memorize-match-area');
-const memorizeMatchTimerElement = document.getElementById('memorize-match-timer');
-const memorizePhase = document.getElementById('memorize-phase');
-const memorizeQuestionsList = document.getElementById('memorize-questions-list');
-const matchPhase = document.getElementById('match-phase');
-const matchQuestionsColumn = document.getElementById('match-questions-column');
-const matchAnswersColumn = document.getElementById('match-answers-column');
-const matchCanvas = document.getElementById('match-canvas'); // Referensi ke canvas HTML
-const checkMatchButton = document.getElementById('check-match-button');
-const matchFeedbackElement = document.getElementById('match-feedback');
-
-
-// --- Fungsi Utilitas Global ---
-function hideAllGameAreas() {
-    mainMenu.classList.add('hidden');
-    levelMenu.classList.add('hidden');
-    gameArea.classList.add('hidden');
-    winMessage.classList.add('hidden');
-    loseMessage.classList.add('hidden');
-    timedChallengeArea.classList.add('hidden');
-    memorizeMatchArea.classList.add('hidden');
-    // chooseAnswerArea.classList.add('hidden'); // Jika ada mode ini
+// --- Fungsi Umum untuk Memuat Konten Game ---
+function loadGame(gameContentHTML) {
+    gameArea.innerHTML = gameContentHTML;
 }
 
-function resetGame() {
-    score = 0;
-    currentQuestion = {};
-    stopTimer();
-    stopTimedChallengeTimer();
-    stopMemorizeMatchTimer();
-    hideAllGameAreas();
-    mainMenu.classList.remove('hidden'); // Kembali ke menu utama
-}
+// --- Game 1: Rumah Beruang Angka (Penjumlahan & Pengurangan) ---
+let currentOperation = ''; // 'penjumlahan' atau 'pengurangan'
+let currentLevel = 0;
+let correctAnswer = 0;
+let timerInterval; // Untuk timer level 2 & 3
+let timeLeft = 0;
 
-// --- FUNGSI UTAMA GAME BIASA (Penjumlahan Manis & Pengurangan Ceria) ---
+function showGame1Menu() {
+    const game1HTML = `
+        <div class="game1-menu">
+            <h2>Pilih Petualangan Angka Beruang!</h2>
+            <button class="game1-option-button" id="btnChoosePenjumlahan">Penjumlahan (+)</button>
+            <button class="game1-option-button" id="btnChoosePengurangan">Pengurangan (-)</button>
+            <p>Atau pilih Level langsung:</p>
+            <div class="level-selection">
+                <button class="level-button" data-level="1">1</button>
+                <button class="level-button" data-level="2">2</button>
+                <button class="level-button" data-level="3">3</button>
+                <button class="level-button" data-level="4">4</button>
+                <button class="level-button" data-level="5">5</button>
+            </div>
+        </div>
+    `;
+    loadGame(game1HTML);
 
-/**
- * Memilih mode game (penjumlahan/pengurangan) dan menampilkan menu level.
- * @param {string} selectedMode 'addition' atau 'subtraction'
- */
-function selectMode(selectedMode) {
-    mode = selectedMode;
-    hideAllGameAreas();
-    mainMenu.classList.add('hidden');
-    levelMenu.classList.remove('hidden');
-}
-
-/**
- * Memulai game dengan tingkat kesulitan yang dipilih.
- * @param {number} selectedLevel Level game (1-5)
- */
-function startGame(selectedLevel) {
-    level = selectedLevel;
-    score = 0; // Reset skor
-    hideAllGameAreas();
-    levelMenu.classList.add('hidden');
-    gameArea.classList.remove('hidden');
-    nextQuestion(); // Mulai soal pertama
-}
-
-/**
- * Membuat kotak input jawaban terpisah untuk setiap digit.
- * Digunakan untuk level bersusun (Level 4 & 5).
- * @param {number} numDigits Jumlah digit jawaban yang diharapkan.
- */
-function createAnswerBoxes(numDigits) {
-    answerInputsContainer.innerHTML = ''; // Bersihkan input yang ada
-    answerBoxes = []; // Reset array answerBoxes
-    singleAnswerInput = null; // Pastikan input tunggal dinonaktifkan
-
-    // Buat input box dari kanan ke kiri untuk memudahkan tampilan bersusun
-    // Karena kita prepend, urutan di HTML akan terbalik, jadi perlu dibalik lagi
-    for (let i = 0; i < numDigits; i++) {
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.maxLength = 1; // Hanya bisa 1 digit
-        input.min = 0;
-        input.max = 9;
-        input.classList.add('answer-box');
-        input.id = `answer-box-${i}`;
-        answerInputsContainer.prepend(input); // Tambahkan ke awal container (efek kanan ke kiri)
-        answerBoxes.push(input);
-    }
-
-    answerBoxes.reverse(); // Balikkan array agar answerBoxes[0] adalah digit paling kiri (puluhan/ratusan)
-
-    // Tambahkan event listener untuk navigasi keyboard dan validasi input
-    answerBoxes.forEach((box, index) => {
-        box.addEventListener('input', (event) => {
-            // Hapus karakter non-digit dan batasi 1 digit
-            event.target.value = event.target.value.replace(/[^0-9]/g, '').slice(0, 1);
-            if (event.target.value.length === 1 && index < answerBoxes.length - 1) {
-                answerBoxes[index + 1].focus(); // Pindah fokus ke kotak berikutnya
-            }
-        });
-
-        box.addEventListener('keydown', (event) => {
-            // Kembali ke kotak sebelumnya saat Backspace di kotak kosong
-            if (event.key === 'Backspace' && event.target.value === '' && index > 0) {
-                answerBoxes[index - 1].focus();
-            }
-            // Mencegah input lebih dari 1 digit (kecuali backspace/delete)
-            if (event.target.value.length >= 1 && event.key !== 'Backspace' && event.key !== 'Delete' && !event.ctrlKey && !event.metaKey) {
-                 // Izinkan panah kiri/kanan, home/end
-                if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End') {
-                    return;
-                }
-                event.preventDefault();
-            }
-        });
-
-        box.addEventListener('keypress', (event) => {
-            // Otomatis cek jawaban saat Enter di kotak terakhir
-            if (event.key === 'Enter' && index === answerBoxes.length - 1) {
-                checkAnswer();
-            }
+    // Event Listeners untuk Game 1 Menu
+    document.getElementById('btnChoosePenjumlahan').addEventListener('click', () => {
+        currentOperation = 'penjumlahan';
+        showLevelSelection();
+    });
+    document.getElementById('btnChoosePengurangan').addEventListener('click', () => {
+        currentOperation = 'pengurangan';
+        showLevelSelection();
+    });
+    document.querySelectorAll('.level-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            currentLevel = parseInt(event.target.dataset.level);
+            // Jika langsung pilih level, default operasi ke penjumlahan (bisa diubah)
+            if (currentOperation === '') currentOperation = 'penjumlahan';
+            startGame1Level(currentLevel, currentOperation);
         });
     });
-
-    if (answerBoxes.length > 0) {
-        answerBoxes[0].focus(); // Fokus ke kotak pertama
-    }
 }
 
-/**
- * Mengambil jawaban dari kotak-kotak input terpisah (untuk level bersusun).
- * @returns {number | null} Jawaban pengguna sebagai angka, atau null jika ada kotak yang kosong.
- */
-function getAnswerFromBoxes() {
-    let userAnswerString = '';
-    let allFilled = true;
-    answerBoxes.forEach(box => {
-        if (box.value === '') {
-            allFilled = false;
-        }
-        userAnswerString += box.value;
+function showLevelSelection() {
+    const levelSelectionHTML = `
+        <div class="game1-menu">
+            <h2>Pilih Level ${currentOperation === 'penjumlahan' ? 'Penjumlahan' : 'Pengurangan'}</h2>
+            <div class="level-selection">
+                <button class="level-button" data-level="1">1</button>
+                <button class="level-button" data-level="2">2</button>
+                <button class="level-button" data-level="3">3</button>
+                <button class="level-button" data-level="4">4</button>
+                <button class="level-button" data-level="5">5</button>
+            </div>
+            <button class="game1-option-button" id="btnBackToGame1Menu">Kembali</button>
+        </div>
+    `;
+    loadGame(levelSelectionHTML);
+
+    document.querySelectorAll('.level-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            currentLevel = parseInt(event.target.dataset.level);
+            startGame1Level(currentLevel, currentOperation);
+        });
     });
-
-    if (!allFilled) {
-        return null; // Mengembalikan null jika ada kotak yang belum terisi
-    }
-    return parseInt(userAnswerString);
+    document.getElementById('btnBackToGame1Menu').addEventListener('click', showGame1Menu);
 }
 
+function generateQuestion(operation, level) {
+    let num1, num2;
+    let questionText = '';
+    let answer = 0;
 
-/**
- * Menggenerasi soal matematika berdasarkan mode dan level yang dipilih.
- */
-function generateQuestion() {
-    let num1, num2, answer;
-
-    susunHintElement.classList.add('hidden'); // Sembunyikan petunjuk susun secara default
-    questionElement.classList.remove('question-animated'); // Hapus animasi dari soal sebelumnya
-    questionElement.innerHTML = ''; // Bersihkan teks soal
-    answerInputsContainer.innerHTML = ''; // Bersihkan input jawaban
-    answerBoxes = []; // Reset array answerBoxes
-    singleAnswerInput = null; // Reset singleAnswerInput
-
-    if (level >= 4) { // Level 4 & 5 (susun)
-        num1 = Math.floor(Math.random() * 90) + 10; // Angka 2 digit (10-99)
-        num2 = Math.floor(Math.random() * 90) + 10;
-
-        if (mode === 'subtraction') {
-            // Pastikan num1 lebih besar dari num2 untuk pengurangan
-            if (num2 > num1) {
-                [num1, num2] = [num2, num1]; // Tukar nilai jika num2 lebih besar
+    switch (level) {
+        case 1: // Penjumlahan/Pengurangan normal 1-10
+        case 2:
+        case 3:
+            num1 = Math.floor(Math.random() * 10) + 1; // 1-10
+            num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+            if (operation === 'penjumlahan') {
+                answer = num1 + num2;
+                questionText = `${num1} + ${num2} = ?`;
+            } else { // pengurangan
+                // Pastikan hasil tidak negatif
+                if (num1 < num2) [num1, num2] = [num2, num1]; // Swap jika num1 lebih kecil
+                answer = num1 - num2;
+                questionText = `${num1} - ${num2} = ?`;
             }
-        } else if (mode === 'addition') {
-            // Pastikan hasil penjumlahan tidak lebih dari 3 digit (max 198)
-            while ((num1 + num2) > 199) {
+            break;
+        case 4: // Penjumlahan/Pengurangan susun (sederhana)
+            // Untuk demo, kita buat yang hasilnya 2-3 digit
+            if (operation === 'penjumlahan') {
+                num1 = Math.floor(Math.random() * 90) + 10; // 10-99
+                num2 = Math.floor(Math.random() * 90) + 10; // 10-99
+                answer = num1 + num2;
+                // Representasi susun, bisa dipecah di HTML
+                questionText = `
+                    ${num1}
+                    <br>${operation === 'penjumlahan' ? '+' : '-'} ${num2}
+                    <br>----
+                    <br>?
+                `;
+            } else { // pengurangan
                 num1 = Math.floor(Math.random() * 90) + 10;
                 num2 = Math.floor(Math.random() * 90) + 10;
+                if (num1 < num2) [num1, num2] = [num2, num1];
+                answer = num1 - num2;
+                 questionText = `
+                    ${num1}
+                    <br>${operation === 'penjumlahan' ? '+' : '-'} ${num2}
+                    <br>----
+                    <br>?
+                `;
             }
-        }
-
-        answer = mode === 'addition' ? num1 + num2 : num1 - num2;
-        
-        let operator = mode === 'addition' ? '+' : '-';
-        // Tampilkan soal bersusun dengan padding agar rapi
-        // `padStart(X, ' ')` menambahkan spasi di depan jika angka kurang dari X digit
-        let questionText = `${String(num1).padStart(3, ' ')}\n${operator} ${String(num2).padStart(2, ' ')}\n-----\n   ?`;
-        questionElement.textContent = questionText;
-        // Simpan detail soal, termasuk operator untuk debugging jika perlu
-        currentQuestion = { num1, num2, correctAnswer: answer, operator }; 
-
-        const numDigits = String(answer).length;
-        createAnswerBoxes(numDigits); // Buat kotak jawaban sesuai jumlah digit
-
-        if (level === 4) { // Tampilkan petunjuk di Level 4
-            susunHintElement.classList.remove('hidden');
-            let hintContent = `
-                <h3>Yuk, Intip Cara Susunnya! 📝</h3>
-                <p>1. Mulai hitung dari angka paling **kanan** (satuan): <strong>${num1 % 10} ${operator} ${num2 % 10}</strong>.</p>
-                <p>2. Tulis hasil satuannya di kotak jawaban paling kanan.</p>
-                <p>3. Kalau ada sisa (misal 10 dari 5+5), ingat-ingat untuk ditambahkan ke hitungan di sebelahnya (puluhan).</p>
-                <p>4. Lanjut hitung angka di sebelahnya (puluhan), dst.</p>
-                <p>Ingat, selalu mulai dari belakang ya! 😉</p>
-            `;
-            susunHintElement.innerHTML = hintContent;
-        }
-
-    } else { // Level 1, 2, 3 (pertanyaan biasa, pakai 1 input box)
-        if (level === 3) {
-            num1 = Math.floor(Math.random() * 90) + 10; // Angka 2 digit (10-99)
-            num2 = Math.floor(Math.random() * 90) + 10;
-        } else {
-            num1 = Math.floor(Math.random() * 10) + 1; // Angka 1-10
+            break;
+        case 5: // Level Bebas (Contoh: Menemukan angka hilang)
+            num1 = Math.floor(Math.random() * 15) + 1;
             num2 = Math.floor(Math.random() * 10) + 1;
-        }
+            let result = num1 + num2;
+            let missingPart = Math.floor(Math.random() * 3); // 0=num1, 1=num2, 2=result
 
-        if (mode === 'subtraction' && num2 > num1) {
-            [num1, num2] = [num2, num1]; // Pastikan num1 lebih besar untuk pengurangan
-        }
-        
-        answer = mode === 'addition' ? num1 + num2 : num1 - num2;
-        
-        questionElement.classList.add('question-animated'); // Tambahkan animasi
-        let operatorSymbol = mode === 'addition' ? '+' : '-';
-        questionElement.textContent = `${num1} ${operatorSymbol} ${num2} = ?`;
-        
-        currentQuestion = { num1, num2, correctAnswer: answer }; // Simpan detail soal
-
-        // Buat input box tunggal
-        singleAnswerInput = document.createElement('input');
-        singleAnswerInput.type = 'number';
-        singleAnswerInput.id = 'answer';
-        singleAnswerInput.placeholder = 'Jawab di sini, yaaa...';
-        singleAnswerInput.classList.add('single-answer-input'); // Tambahkan class untuk styling
-        answerInputsContainer.appendChild(singleAnswerInput);
-
-        singleAnswerInput.focus(); // Set fokus ke input box
-
-        // Tambahkan event listener untuk tombol Enter
-        singleAnswerInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                checkAnswer();
+            if (missingPart === 0) {
+                questionText = `? + ${num2} = ${result}`;
+                answer = num1;
+            } else if (missingPart === 1) {
+                questionText = `${num1} + ? = ${result}`;
+                answer = num2;
+            } else {
+                questionText = `${num1} + ${num2} = ?`;
+                answer = result;
             }
-        });
+            break;
     }
-
-    // Bersihkan feedback dan sembunyikan tombol 'Selanjutnya'
-    feedbackElement.textContent = '';
-    feedbackElement.classList.remove('error');
-    nextQuestionButton.classList.add('hidden');
-    checkButton.style.display = 'inline-block'; // Pastikan tombol cek terlihat
-
-    // Mulai atau reset timer untuk Level 2
-    if (level === 2) {
-        startTimer();
-        timerElement.classList.remove('hidden');
-    } else {
-        stopTimer(); // Pastikan timer berhenti untuk level lain
-        timerElement.classList.add('hidden');
-    }
+    return { questionText, answer };
 }
 
-/**
- * Memulai timer untuk Level 2.
- */
-function startTimer() {
-    stopTimer(); // Hentikan timer sebelumnya jika ada
-    timeLeft = 10; // Reset waktu
-    timerElement.textContent = `Waktu: ${timeLeft} detik`;
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        timerElement.textContent = `Waktu: ${timeLeft} detik`;
-        if (timeLeft <= 0) {
-            stopTimer();
-            loseGame('Waktu Habis!');
-        }
-    }, 1000);
-}
+function startGame1Level(level, operation) {
+    currentLevel = level;
+    currentOperation = operation;
+    clearInterval(timerInterval); // Bersihkan timer sebelumnya jika ada
 
-/**
- * Menghentikan timer game biasa.
- */
-function stopTimer() {
-    clearInterval(timerInterval);
-}
+    const { questionText, answer } = generateQuestion(operation, level);
+    correctAnswer = answer;
 
-/**
- * Memeriksa jawaban yang dimasukkan pengguna.
- */
-function checkAnswer() {
-    let userAnswer;
-    if (level >= 4) {
-        userAnswer = getAnswerFromBoxes();
-        if (userAnswer === null) {
-            feedbackElement.textContent = 'Isi semua kotak jawaban, ya!';
-            feedbackElement.classList.add('error');
-            return;
-        }
-    } else {
-        if (!singleAnswerInput) { // Jaga-jaga jika input tidak ada (error inisialisasi)
-            feedbackElement.textContent = 'Terjadi kesalahan, coba lagi.';
-            feedbackElement.classList.add('error');
-            return;
-        }
-        userAnswer = parseInt(singleAnswerInput.value);
-        if (isNaN(userAnswer)) {
-            feedbackElement.textContent = 'Masukkan angka, yaaa!';
-            feedbackElement.classList.add('error');
-            return;
-        }
+    let levelHTML = `
+        <div class="game-question-area">
+            <h2>Level ${level} - ${operation === 'penjumlahan' ? 'Penjumlahan' : 'Pengurangan'}</h2>
+            ${(level === 2 || level === 3) ? '<div class="timer-display" id="timerDisplay"></div>' : ''}
+            <div class="question-text">${questionText}</div>
+            <input type="number" id="answerInput" class="answer-input" placeholder="Jawaban" autofocus>
+            <button id="submitAnswer" class="submit-button">Jawab!</button>
+            <div id="feedbackMessage" class="feedback-message"></div>
+            <button id="backToLevels" class="game1-option-button">Kembali ke Level</button>
+        </div>
+    `;
+
+    // Untuk level 4 (susun), sesuaikan input menjadi beberapa kolom jika perlu
+    if (level === 4) {
+        // Contoh sederhana untuk level 4, input masih satu. Untuk multiple input, perlu DOM manipulation lebih lanjut
+        levelHTML = `
+            <div class="game-question-area">
+                <h2>Level ${level} - Susun ${operation === 'penjumlahan' ? 'Penjumlahan' : 'Pengurangan'}</h2>
+                <div class="question-text" style="line-height: 1.5;">${questionText}</div>
+                <input type="number" id="answerInput" class="answer-input" placeholder="Jawaban" autofocus>
+                <button id="submitAnswer" class="submit-button">Jawab!</button>
+                <div id="feedbackMessage" class="feedback-message"></div>
+                <button id="backToLevels" class="game1-option-button">Kembali ke Level</button>
+            </div>
+        `;
     }
 
-    // Hentikan timer Level 2 segera setelah menjawab
-    if (level === 2) {
-        stopTimer();
-    }
+    loadGame(levelHTML);
 
-    if (userAnswer === currentQuestion.correctAnswer) {
-        feedbackElement.textContent = 'Horeee! Benar! 🎉';
-        feedbackElement.classList.remove('error');
-        feedbackElement.style.color = '#4CAF50'; // Hijau
-        score++;
-        checkButton.style.display = 'none'; // Sembunyikan tombol cek
-        nextQuestionButton.classList.remove('hidden'); // Tampilkan tombol selanjutnya
-        // Jika input box tunggal, nonaktifkan untuk mencegah perubahan
-        if (singleAnswerInput) singleAnswerInput.disabled = true;
-        // Jika kotak bersusun, nonaktifkan semua
-        answerBoxes.forEach(box => box.disabled = true);
-    } else {
-        feedbackElement.textContent = `Waduh, salah! Jawaban yang benar adalah ${currentQuestion.correctAnswer} 😢`;
-        feedbackElement.classList.add('error');
-        feedbackElement.style.color = '#F44336'; // Merah
-        checkButton.style.display = 'none'; // Sembunyikan tombol cek
-        nextQuestionButton.classList.remove('hidden'); // Tampilkan tombol selanjutnya
-        // Jika input box tunggal, nonaktifkan untuk mencegah perubahan
-        if (singleAnswerInput) singleAnswerInput.disabled = true;
-        // Jika kotak bersusun, nonaktifkan semua
-        answerBoxes.forEach(box => box.disabled = true);
-    }
-}
+    const answerInput = document.getElementById('answerInput');
+    const submitButton = document.getElementById('submitAnswer');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const backToLevelsButton = document.getElementById('backToLevels');
 
-/**
- * Melanjutkan ke soal berikutnya atau menampilkan pesan menang/kalah.
- */
-function nextQuestion() {
-    // Reset input dan feedback
-    if (singleAnswerInput) {
-        singleAnswerInput.value = '';
-        singleAnswerInput.disabled = false;
-        singleAnswerInput.focus();
-    }
-    answerBoxes.forEach(box => {
-        box.value = '';
-        box.disabled = false;
+    // Event listener untuk tombol submit
+    submitButton.addEventListener('click', () => checkAnswer(answerInput, feedbackMessage));
+    // Event listener untuk 'Enter' di input
+    answerInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            checkAnswer(answerInput, feedbackMessage);
+        }
     });
 
-    feedbackElement.textContent = '';
-    nextQuestionButton.classList.add('hidden');
-    checkButton.style.display = 'inline-block'; // Tampilkan kembali tombol cek
+    backToLevelsButton.addEventListener('click', showLevelSelection);
 
-    if (score >= WIN_THRESHOLD) {
-        winGame();
-    } else {
-        generateQuestion();
+    // Timer untuk Level 2 dan 3
+    if (level === 2 || level === 3) {
+        timeLeft = (level === 2) ? 10 : 5;
+        const timerDisplay = document.getElementById('timerDisplay');
+        timerDisplay.textContent = `Waktu: ${timeLeft} detik`;
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = `Waktu: ${timeLeft} detik`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                feedbackMessage.textContent = 'Waktu Habis! Jawaban yang benar adalah ' + correctAnswer;
+                feedbackMessage.className = 'feedback-message feedback-wrong';
+                audioWrong.play();
+                submitButton.disabled = true; // Nonaktifkan tombol
+                answerInput.disabled = true;  // Nonaktifkan input
+                // Otomatis pindah soal setelah beberapa detik
+                setTimeout(() => startGame1Level(level, operation), 2000);
+            }
+        }, 1000);
     }
 }
 
-/**
- * Menampilkan pesan kemenangan.
- */
-function winGame() {
-    hideAllGameAreas();
-    winMessage.classList.remove('hidden');
-}
-
-/**
- * Menampilkan pesan kekalahan.
- * @param {string} reason Alasan kekalahan (misal: "Waktu Habis!")
- */
-function loseGame(reason) {
-    hideAllGameAreas();
-    loseTextElement.textContent = reason;
-    loseMessage.classList.remove('hidden');
-}
-
-// --- FUNGSI MODE UJIAN KILAT (Timed Challenge) ---
-
-/**
- * Memulai mode Ujian Kilat.
- */
-function startTimedChallenge() {
-    hideAllGameAreas();
-    timedChallengeArea.classList.remove('hidden');
-    timedChallengeQuestions = [];
-    currentTimedQuestionIndex = 0;
-    timedChallengeCorrectCount = 0;
-    timedChallengeTimeLeft = 60; // Reset waktu untuk ujian kilat
-
-    // Generate semua soal untuk ujian kilat
-    for (let i = 0; i < MAX_TIMED_QUESTIONS; i++) {
-        let num1 = Math.floor(Math.random() * 20) + 1; // Angka 1-20
-        let num2 = Math.floor(Math.random() * 20) + 1;
-        let operatorSymbol = '+'; // Ujian kilat hanya penjumlahan
-        let correctAnswer = num1 + num2;
-        timedChallengeQuestions.push({
-            question: `${num1} ${operatorSymbol} ${num2} = ?`,
-            correctAnswer: correctAnswer
-        });
-    }
-
-    displayTimedQuestion();
-    startTimedChallengeTimer();
-    timedAnswerInput.focus();
-}
-
-/**
- * Menampilkan soal ujian kilat saat ini.
- */
-function displayTimedQuestion() {
-    if (currentTimedQuestionIndex < MAX_TIMED_QUESTIONS) {
-        timedQuestionDisplay.textContent = timedChallengeQuestions[currentTimedQuestionIndex].question;
-        timedAnswerInput.value = ''; // Bersihkan input
-        timedChallengeProgressElement.textContent = `Soal ${currentTimedQuestionIndex + 1}/${MAX_TIMED_QUESTIONS}`;
-        timedChallengeFeedbackElement.textContent = ''; // Bersihkan feedback
-    } else {
-        // Semua soal sudah terjawab
-        finishTimedChallenge();
-    }
-}
-
-/**
- * Memulai timer untuk mode Ujian Kilat.
- */
-function startTimedChallengeTimer() {
-    stopTimedChallengeTimer(); // Hentikan timer sebelumnya
-    timedChallengeTimerElement.textContent = `Waktu: ${timedChallengeTimeLeft} detik`;
-    timedChallengeTimer = setInterval(() => {
-        timedChallengeTimeLeft--;
-        timedChallengeTimerElement.textContent = `Waktu: ${timedChallengeTimeLeft} detik`;
-        if (timedChallengeTimeLeft <= 0) {
-            stopTimedChallengeTimer();
-            finishTimedChallenge();
-        }
-    }, 1000);
-}
-
-/**
- * Menghentikan timer ujian kilat.
- */
-function stopTimedChallengeTimer() {
-    clearInterval(timedChallengeTimer);
-}
-
-/**
- * Mengirim jawaban untuk soal ujian kilat.
- */
-function submitTimedAnswer() {
-    const userAnswer = parseInt(timedAnswerInput.value);
-    if (isNaN(userAnswer)) {
-        timedChallengeFeedbackElement.textContent = 'Isi jawaban dulu, ya!';
-        timedChallengeFeedbackElement.style.color = '#F44336';
-        return;
-    }
-
-    const correctAnswer = timedChallengeQuestions[currentTimedQuestionIndex].correctAnswer;
+function checkAnswer(inputElement, feedbackElement) {
+    clearInterval(timerInterval); // Hentikan timer saat jawaban diberikan
+    const userAnswer = parseInt(inputElement.value);
 
     if (userAnswer === correctAnswer) {
-        timedChallengeCorrectCount++;
-        timedChallengeFeedbackElement.textContent = 'Benar! 👍';
-        timedChallengeFeedbackElement.style.color = '#4CAF50';
+        feedbackElement.textContent = 'Hebat! Kamu Benar! 🎉';
+        feedbackElement.className = 'feedback-message feedback-correct';
+        audioCorrect.play();
     } else {
-        timedChallengeFeedbackElement.textContent = `Salah! Jawaban: ${correctAnswer} 👎`;
-        timedChallengeFeedbackElement.style.color = '#F44336';
+        feedbackElement.textContent = `Ups! Jawabanmu Salah. Yang benar adalah ${correctAnswer}. 😔`;
+        feedbackElement.className = 'feedback-message feedback-wrong';
+        audioWrong.play();
     }
-
-    currentTimedQuestionIndex++;
-    // Beri sedikit jeda sebelum menampilkan soal berikutnya agar pengguna bisa melihat feedback
-    setTimeout(() => {
-        displayTimedQuestion();
-        timedAnswerInput.focus();
-    }, 800);
+    inputElement.value = ''; // Kosongkan input
+    setTimeout(() => startGame1Level(currentLevel, currentOperation), 1500); // Lanjut soal berikutnya
 }
 
-/**
- * Menyelesaikan mode Ujian Kilat dan menampilkan hasil.
- */
-function finishTimedChallenge() {
-    stopTimedChallengeTimer();
-    let resultMessage = '';
-    if (timedChallengeCorrectCount >= MAX_TIMED_QUESTIONS) {
-        winGame();
-        return; // Langsung ke winGame jika semua benar
+
+// --- Game 3: Ujian Kilat 1 Menit ---
+let scoreGame3 = 0;
+let game3Timer;
+let game3TimeLeft = 60;
+let game3OperationType = ''; // 'penjumlahan' or 'pengurangan'
+
+function showGame3Menu() {
+    const game3HTML = `
+        <div class="game1-menu">
+            <h2>Ujian Kilat 1 Menit!</h2>
+            <p>Seberapa banyak soal yang bisa kamu jawab dalam 1 menit?</p>
+            <button class="game1-option-button" id="btnGame3Penjumlahan">Mulai Penjumlahan</button>
+            <button class="game1-option-button" id="btnGame3Pengurangan">Mulai Pengurangan</button>
+            <button class="game1-option-button" id="btnBackToMainMenuFromGame3">Kembali</button>
+        </div>
+    `;
+    loadGame(game3HTML);
+
+    document.getElementById('btnGame3Penjumlahan').addEventListener('click', () => {
+        game3OperationType = 'penjumlahan';
+        startGame3();
+    });
+    document.getElementById('btnGame3Pengurangan').addEventListener('click', () => {
+        game3OperationType = 'pengurangan';
+        startGame3();
+    });
+    document.getElementById('btnBackToMainMenuFromGame3').addEventListener('click', showWelcomeScreen);
+}
+
+function startGame3() {
+    scoreGame3 = 0;
+    game3TimeLeft = 60;
+    
+    const game3QuestionHTML = `
+        <div class="game-question-area">
+            <div class="timer-display" id="game3TimerDisplay">Waktu: 60 detik</div>
+            <div class="question-text" id="game3Question"></div>
+            <input type="number" id="game3AnswerInput" class="answer-input" placeholder="Jawaban" autofocus>
+            <button id="game3SubmitAnswer" class="submit-button">Jawab!</button>
+            <div class="feedback-message" id="game3Feedback"></div>
+            <div class="score-display" style="font-size: 1.5em; margin-top: 10px; color: #8C5642;">Skor: <span id="game3Score">0</span></div>
+        </div>
+    `;
+    loadGame(game3QuestionHTML);
+
+    const game3TimerDisplay = document.getElementById('game3TimerDisplay');
+    const game3QuestionEl = document.getElementById('game3Question');
+    const game3AnswerInput = document.getElementById('game3AnswerInput');
+    const game3SubmitBtn = document.getElementById('game3SubmitAnswer');
+    const game3FeedbackEl = document.getElementById('game3Feedback');
+    const game3ScoreEl = document.getElementById('game3Score');
+
+    function generateGame3Question() {
+        let num1 = Math.floor(Math.random() * 15) + 5; // Angka lebih besar sedikit
+        let num2 = Math.floor(Math.random() * 10) + 1;
+        let question, answer;
+
+        if (game3OperationType === 'penjumlahan') {
+            answer = num1 + num2;
+            question = `${num1} + ${num2} = ?`;
+        } else {
+            if (num1 < num2) [num1, num2] = [num2, num1]; // Pastikan num1 > num2
+            answer = num1 - num2;
+            question = `${num1} - ${num2} = ?`;
+        }
+        game3QuestionEl.textContent = question;
+        game3QuestionEl.dataset.correctAnswer = answer; // Simpan jawaban di dataset
+        game3AnswerInput.value = ''; // Clear input
+        game3AnswerInput.focus();
+    }
+
+    function checkGame3Answer() {
+        const userAnswer = parseInt(game3AnswerInput.value);
+        const correctAnswer = parseInt(game3QuestionEl.dataset.correctAnswer);
+
+        if (userAnswer === correctAnswer) {
+            scoreGame3++;
+            game3ScoreEl.textContent = scoreGame3;
+            game3FeedbackEl.textContent = 'Benar! 🎉';
+            game3FeedbackEl.className = 'feedback-message feedback-correct';
+            audioCorrect.play();
+        } else {
+            game3FeedbackEl.textContent = 'Salah! 😔';
+            game3FeedbackEl.className = 'feedback-message feedback-wrong';
+            audioWrong.play();
+        }
+        generateGame3Question(); // Langsung soal berikutnya
+    }
+
+    game3SubmitBtn.addEventListener('click', checkGame3Answer);
+    game3AnswerInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            checkGame3Answer();
+        }
+    });
+
+    // Mulai Timer
+    game3Timer = setInterval(() => {
+        game3TimeLeft--;
+        game3TimerDisplay.textContent = `Waktu: ${game3TimeLeft} detik`;
+
+        if (game3TimeLeft <= 0) {
+            clearInterval(game3Timer);
+            endGame3();
+        }
+    }, 1000);
+
+    generateGame3Question(); // Soal pertama
+}
+
+function endGame3() {
+    clearInterval(game3Timer);
+    let emoji = '';
+    let message = `Waktu Habis! Kamu berhasil menjawab ${scoreGame3} soal. `;
+
+    if (scoreGame3 >= 15) { // Angka disesuaikan
+        emoji = '💖✨🤩🥳🎉🎊';
+        audioCelebrate.play(); // Mainkan suara perayaan heboh
+        message += 'Kamu HEBAT BANGET! ';
+    } else if (scoreGame3 >= 5) {
+        emoji = '🥳🎉';
+        message += 'Luar biasa! Pertahankan! ';
+    } else if (scoreGame3 >= 3) {
+        emoji = '🤩';
+        message += 'Bagus! Terus semangat ya! ';
     } else {
-        resultMessage = `Kamu berhasil menjawab ${timedChallengeCorrectCount} dari ${MAX_TIMED_QUESTIONS} soal. Terus semangat belajar, ya!`;
-        loseGame(resultMessage);
-    }
-}
-
-
-// --- FUNGSI MODE INGAT & COCOKKAN (Memorize & Match) ---
-
-/**
- * Memulai mode Ingat & Cocokkan.
- */
-function startMemorizeMatchMode() {
-    hideAllGameAreas();
-    memorizeMatchArea.classList.remove('hidden');
-    memorizeMatchTimeLeft = 60; // Reset waktu
-    memorizeQuestionsData = [];
-    currentMemorizeMatches = [];
-    clearCanvas(); // Bersihkan garis di canvas
-    
-    matchFeedbackElement.textContent = ''; // Bersihkan feedback
-
-    // Generate 5 pasangan soal-jawaban
-    for (let i = 0; i < 5; i++) {
-        let num1 = Math.floor(Math.random() * 15) + 5; // Angka 5-19
-        let num2 = Math.floor(Math.random() * 15) + 5;
-        let questionText = `${num1} + ${num2}`;
-        let answer = num1 + num2;
-        memorizeQuestionsData.push({ question: questionText, answer: answer, id: i });
+        emoji = '😢';
+        message += 'Jangan menyerah ya, coba lagi! ';
     }
 
-    shuffleArray(memorizeQuestionsData); // Acak urutan pertanyaan untuk fase mengingat
+    const endScreenHTML = `
+        <div class="game1-menu">
+            <h2>Ujian Selesai!</h2>
+            <p>${message}</p>
+            <p class="emoji-result" style="font-size: 4em; margin-top: 20px;">${emoji}</p>
+            <button class="game1-option-button" id="btnPlayAgainGame3">Main Lagi</button>
+            <button class="game1-option-button" id="btnBackToMainMenuFromGame3End">Kembali ke Menu Utama</button>
+        </div>
+    `;
+    loadGame(endScreenHTML);
 
-    displayMemorizePhase();
-    startMemorizeMatchTimer();
-    checkMatchButton.classList.add('hidden'); // Sembunyikan tombol ini, karena akan otomatis dicek saat drag/drop
-    
-    // Inisialisasi canvas
-    canvas = matchCanvas;
-    ctx = canvas.getContext('2d');
-    // Set canvas dimensions to match its parent for correct drawing (important!)
-    const matchColumnsRect = document.querySelector('.match-columns').getBoundingClientRect();
-    canvas.width = matchColumnsRect.width;
-    canvas.height = matchColumnsRect.height;
-    
-    // Add event listeners for drawing
-    setupCanvasDrawingListeners();
+    document.getElementById('btnPlayAgainGame3').addEventListener('click', showGame3Menu); // Kembali ke menu pilih operasi
+    document.getElementById('btnBackToMainMenuFromGame3End').addEventListener('click', showWelcomeScreen);
 }
 
-/**
- * Mengacak array.
- * @param {Array} array Array yang akan diacak.
- */
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+
+// --- Game 4: Ingat dan Cocokkan ---
+let pairsToMemorize = [];
+let memorizationTimer;
+let matchTimer; // Optional, jika ada timer di fase mencocokkan
+let matchTimeLeft = 60;
+const totalPairs = 5; // Jumlah pasangan soal-jawaban
+
+function showGame4Menu() {
+    const game4HTML = `
+        <div class="game1-menu">
+            <h2>Ingat dan Cocokkan!</h2>
+            <p>Ingat pasangan soal dan jawaban ini selama 1 menit, lalu cocokkan!</p>
+            <button class="game1-option-button" id="btnStartGame4">Mulai Game 4</button>
+            <button class="game1-option-button" id="btnBackToMainMenuFromGame4">Kembali</button>
+        </div>
+    `;
+    loadGame(game4HTML);
+
+    document.getElementById('btnStartGame4').addEventListener('click', startGame4Memorize);
+    document.getElementById('btnBackToMainMenuFromGame4').addEventListener('click', showWelcomeScreen);
+}
+
+function generateMathPairs(count) {
+    const pairs = [];
+    for (let i = 0; i < count; i++) {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        const operator = Math.random() < 0.5 ? '+' : '-';
+
+        let question, answer;
+        if (operator === '+') {
+            question = `${num1} + ${num2}`;
+            answer = num1 + num2;
+        } else {
+            // Pastikan pengurangan tidak menghasilkan negatif
+            let n1 = Math.max(num1, num2);
+            let n2 = Math.min(num1, num2);
+            question = `${n1} - ${n2}`;
+            answer = n1 - n2;
+        }
+        pairs.push({ question: question, answer: answer });
     }
+    return pairs;
 }
 
-/**
- * Menampilkan fase mengingat soal dan jawaban.
- */
-function displayMemorizePhase() {
-    memorizePhase.classList.remove('hidden');
-    matchPhase.classList.add('hidden');
-    memorizeQuestionsList.innerHTML = '';
+function startGame4Memorize() {
+    pairsToMemorize = generateMathPairs(totalPairs);
 
-    memorizeQuestionsData.forEach(item => {
-        const div = document.createElement('div');
-        div.classList.add('memorize-item');
-        div.textContent = `${item.question} = ${item.answer}`;
-        memorizeQuestionsList.appendChild(div);
-    });
+    const memorizeHTML = `
+        <div class="game-question-area game4-memorize-area">
+            <h2>Ingat Baik-Baik!</h2>
+            <div class="timer-display" id="game4MemorizeTimer">Waktu Mengingat: 60 detik</div>
+            <div class="pairs-grid">
+                ${pairsToMemorize.map((pair, index) => `
+                    <div class="pair-item">
+                        <div class="pair-question">${pair.question} =</div>
+                        <div class="pair-answer">${pair.answer}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    loadGame(memorizeHTML);
 
-    // Pindah ke fase mencocokkan setelah beberapa detik (misal 5-7 detik)
-    setTimeout(() => {
-        displayMatchPhase();
-    }, 7000); // 7 detik untuk mengingat
-}
+    const game4MemorizeTimer = document.getElementById('game4MemorizeTimer');
+    matchTimeLeft = 60; // Reset waktu mengingat
 
-/**
- * Menampilkan fase mencocokkan.
- */
-function displayMatchPhase() {
-    memorizePhase.classList.add('hidden');
-    matchPhase.classList.remove('hidden');
-    memorizeMatchTimerElement.style.color = '#e74c3c'; // Ganti warna timer agar lebih terlihat
+    memorizationTimer = setInterval(() => {
+        matchTimeLeft--;
+        game4MemorizeTimer.textContent = `Waktu Mengingat: ${matchTimeLeft} detik`;
 
-    matchQuestionsColumn.innerHTML = '';
-    matchAnswersColumn.innerHTML = '';
-
-    let questionsToDisplay = memorizeQuestionsData.map(item => ({ id: item.id, text: item.question }));
-    let answersToDisplay = memorizeQuestionsData.map(item => ({ id: item.id, text: item.answer }));
-
-    shuffleArray(questionsToDisplay);
-    shuffleArray(answersToDisplay);
-
-    questionsToDisplay.forEach(q => {
-        const div = document.createElement('div');
-        div.classList.add('match-item');
-        div.dataset.id = `q-${q.id}`; // id unik untuk pertanyaan
-        div.textContent = q.text;
-        matchQuestionsColumn.appendChild(div);
-    });
-
-    answersToDisplay.forEach(a => {
-        const div = document.createElement('div');
-        div.classList.add('match-item');
-        div.dataset.id = `a-${a.id}`; // id unik untuk jawaban
-        div.textContent = a.text;
-        matchAnswersColumn.appendChild(div);
-    });
-
-    // Perbarui posisi canvas jika ukuran elemen berubah
-    const matchColumnsRect = document.querySelector('.match-columns').getBoundingClientRect();
-    canvas.width = matchColumnsRect.width;
-    canvas.height = matchColumnsRect.height;
-    canvas.style.left = `${matchQuestionsColumn.getBoundingClientRect().right - matchColumnsRect.left}px`;
-    canvas.style.top = `0px`; // Sesuaikan jika ada padding di .match-columns
-
-    addMatchItemListeners(); // Tambahkan event listener untuk setiap item yang bisa dicocokkan
-}
-
-/**
- * Memulai timer untuk mode Ingat & Cocokkan.
- */
-function startMemorizeMatchTimer() {
-    stopMemorizeMatchTimer();
-    memorizeMatchTimerElement.textContent = `Waktu: ${memorizeMatchTimeLeft} detik`;
-    memorizeMatchTimer = setInterval(() => {
-        memorizeMatchTimeLeft--;
-        memorizeMatchTimerElement.textContent = `Waktu: ${memorizeMatchTimeLeft} detik`;
-        if (memorizeMatchTimeLeft <= 0) {
-            stopMemorizeMatchTimer();
-            finishMemorizeMatch();
+        if (matchTimeLeft <= 0) {
+            clearInterval(memorizationTimer);
+            startGame4Match();
         }
     }, 1000);
 }
 
-/**
- * Menghentikan timer mode Ingat & Cocokkan.
- */
-function stopMemorizeMatchTimer() {
-    clearInterval(memorizeMatchTimer);
-}
-
-/**
- * Menyiapkan event listener untuk menggambar garis di canvas.
- */
-function setupCanvasDrawingListeners() {
-    // Pastikan canvas dan ctx sudah diinisialisasi
-    if (!canvas || !ctx) {
-        console.error("Canvas atau Context belum diinisialisasi.");
-        return;
-    }
-
-    const memorizeMatchAreaRect = memorizeMatchArea.getBoundingClientRect();
-
-    memorizeMatchArea.addEventListener('mousedown', (e) => {
-        // Hanya mulai menggambar jika klik pada item di kolom pertanyaan
-        startElement = e.target.closest('.match-item');
-        if (startElement && startElement.parentElement.id === 'match-questions-column' && !startElement.classList.contains('matched')) {
-            isDrawing = true;
-            startElement.classList.add('selected'); // Highlight item yang dipilih
-            // Dapatkan posisi relatif terhadap memorizeMatchArea untuk menggambar di canvas
-            const startRect = startElement.getBoundingClientRect();
-            startPoint = {
-                x: (startRect.right - memorizeMatchAreaRect.left), // Ujung kanan item pertanyaan
-                y: (startRect.top + startRect.height / 2 - memorizeMatchAreaRect.top)
-            };
-            currentMouseX = startPoint.x;
-            currentMouseY = startPoint.y;
-        }
+function startGame4Match() {
+    // Acak ulang untuk mencocokkan
+    let allItems = [];
+    pairsToMemorize.forEach(pair => {
+        allItems.push({ type: 'question', value: pair.question, id: pair.answer });
+        allItems.push({ type: 'answer', value: pair.answer, id: pair.answer }); // ID sama untuk pasangannya
     });
+    // Acak urutan
+    allItems.sort(() => Math.random() - 0.5);
 
-    memorizeMatchArea.addEventListener('mousemove', (e) => {
-        if (!isDrawing) return;
+    const matchHTML = `
+        <div class="game-question-area game4-match-area">
+            <h2>Cocokkan Pasangannya!</h2>
+            <div class="match-grid" id="matchGrid">
+                ${allItems.map((item, index) => `
+                    <div class="match-item" data-type="${item.type}" data-id="${item.id}" data-value="${item.value}">
+                        ${item.value}
+                    </div>
+                `).join('')}
+            </div>
+            <div id="matchFeedback" class="feedback-message" style="margin-top: 20px;"></div>
+            <button class="game1-option-button" id="btnRestartGame4" style="margin-top: 20px;">Main Lagi</button>
+            <button class="game1-option-button" id="btnBackToMainMenuFromGame4Match">Kembali ke Menu Utama</button>
+        </div>
+    `;
+    loadGame(matchHTML);
 
-        // Dapatkan posisi mouse relatif terhadap memorizeMatchArea
-        currentMouseX = e.clientX - memorizeMatchAreaRect.left;
-        currentMouseY = e.clientY - memorizeMatchAreaRect.top;
+    const matchGrid = document.getElementById('matchGrid');
+    const matchFeedback = document.getElementById('matchFeedback');
+    let selectedItems = [];
+    let matchedPairsCount = 0;
 
-        redrawLines(); // Gambar ulang semua garis yang sudah dicocokkan
-        drawCurrentLine(startPoint.x, startPoint.y, currentMouseX, currentMouseY); // Gambar garis sementara
-    });
-
-    memorizeMatchArea.addEventListener('mouseup', (e) => {
-        if (!isDrawing) return;
-        isDrawing = false;
-        if (startElement) {
-            startElement.classList.remove('selected');
+    matchGrid.addEventListener('click', (event) => {
+        const clickedItem = event.target.closest('.match-item');
+        if (!clickedItem || clickedItem.classList.contains('matched') || selectedItems.includes(clickedItem)) {
+            return;
         }
 
-        const endElement = e.target.closest('.match-item');
-        if (endElement && endElement.parentElement.id === 'match-answers-column' && !endElement.classList.contains('matched')) {
-            // Drop pada item di kolom jawaban
-            const questionId = startElement.dataset.id.replace('q-', '');
-            const answerId = endElement.dataset.id.replace('a-', '');
+        clickedItem.classList.add('selected');
+        selectedItems.push(clickedItem);
 
-            // Pastikan belum ada pasangan yang sama dan item belum dicocokkan
-            const alreadyMatched = currentMemorizeMatches.some(match =>
-                (match.questionId === questionId && match.answerId === answerId) ||
-                (match.questionId === questionId && match.answerId === answerId)
-            );
+        if (selectedItems.length === 2) {
+            const [item1, item2] = selectedItems;
+            
+            // Periksa apakah tipenya berbeda (pertanyaan dan jawaban) dan ID-nya sama
+            if (item1.dataset.type !== item2.dataset.type && item1.dataset.id === item2.dataset.id) {
+                // Pasangan Cocok!
+                item1.classList.remove('selected');
+                item2.classList.remove('selected');
+                item1.classList.add('matched');
+                item2.classList.add('matched');
+                audioCorrect.play();
+                matchFeedback.textContent = 'Cocok! 🎉';
+                matchFeedback.className = 'feedback-message feedback-correct';
+                matchedPairsCount++;
 
-            if (!alreadyMatched && questionId === answerId) { // Jawaban benar
-                currentMemorizeMatches.push({
-                    questionEl: startElement,
-                    answerEl: endElement,
-                    questionId: questionId,
-                    answerId: answerId
-                });
-                startElement.classList.add('matched');
-                endElement.classList.add('matched');
-                matchFeedbackElement.textContent = 'Cocok! Lanjutkan! 👍';
-                matchFeedbackElement.style.color = '#4CAF50';
-                
-                // Redraw semua garis termasuk yang baru
-                redrawLines();
-
-                // Cek apakah semua sudah cocok
-                if (currentMemorizeMatches.length === memorizeQuestionsData.length) {
-                    setTimeout(finishMemorizeMatch, 500); // Beri sedikit jeda
+                if (matchedPairsCount === totalPairs) {
+                    setTimeout(() => {
+                        matchFeedback.textContent = 'Hebat! Semua Pasangan Cocok! 💖✨';
+                        matchFeedback.className = 'feedback-message feedback-correct';
+                        audioCelebrate.play();
+                    }, 500);
                 }
-            } else if (questionId !== answerId) { // Jawaban salah
-                matchFeedbackElement.textContent = 'Salah cocok! Coba lagi. 👎';
-                matchFeedbackElement.style.color = '#F44336';
-                redrawLines(); // Gambar ulang untuk membersihkan garis yang salah
+            } else {
+                // Tidak Cocok
+                audioWrong.play();
+                matchFeedback.textContent = 'Tidak Cocok! 😔 Coba lagi.';
+                matchFeedback.className = 'feedback-message feedback-wrong';
+                
+                setTimeout(() => {
+                    item1.classList.remove('selected');
+                    item2.classList.remove('selected');
+                    matchFeedback.textContent = ''; // Hapus pesan setelah jeda
+                }, 800);
             }
-        } else {
-            // Drop di luar target yang valid, bersihkan garis sementara
-            redrawLines();
+            selectedItems = []; // Reset pilihan
         }
     });
 
-    // Mencegah masalah saat mouse meninggalkan area saat drag
-    memorizeMatchArea.addEventListener('mouseleave', () => {
-        if (isDrawing) {
-            isDrawing = false;
-            if (startElement) {
-                startElement.classList.remove('selected');
-            }
-            redrawLines();
-        }
-    });
+    document.getElementById('btnRestartGame4').addEventListener('click', showGame4Menu);
+    document.getElementById('btnBackToMainMenuFromGame4Match').addEventListener('click', showWelcomeScreen);
 }
 
-/**
- * Menambahkan event listener ke setiap item pencocokan (untuk drag and drop).
- */
-function addMatchItemListeners() {
-    document.querySelectorAll('.match-item').forEach(item => {
-        // Tambahkan atribut draggable
-        item.draggable = true;
-        // Event listener dragstart, dragover, drop akan dihandle secara global di memorizeMatchArea
-        // Karena kita menggambar di canvas, kita hanya perlu info posisi mouse
-        // Event listener mouseup/mousedown/mousemove di memorizeMatchArea sudah menangani ini
-    });
+
+// --- Fungsi untuk Kembali ke Layar Selamat Datang ---
+function showWelcomeScreen() {
+    const welcomeHTML = `
+        <p class="welcome-text">Pilih game favoritmu di atas ya!</p>
+    `;
+    loadGame(welcomeHTML);
+    // Bersihkan semua timer jika ada
+    clearInterval(timerInterval);
+    clearInterval(game3Timer);
+    clearInterval(memorizationTimer);
+    clearInterval(matchTimer);
 }
 
-/**
- * Menggambar ulang semua garis yang sudah dicocokkan di canvas.
- */
-function redrawLines() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan seluruh canvas
+// --- Event Listeners untuk Tombol Navigasi Utama ---
+btnGame1.addEventListener('click', showGame1Menu);
+btnGame3.addEventListener('click', showGame3Menu);
+btnGame4.addEventListener('click', showGame4Menu);
 
-    const memorizeMatchAreaRect = memorizeMatchArea.getBoundingClientRect();
-
-    currentMemorizeMatches.forEach(match => {
-        const qRect = match.questionEl.getBoundingClientRect();
-        const aRect = match.answerEl.getBoundingClientRect();
-
-        const startX = (qRect.right - memorizeMatchAreaRect.left);
-        const startY = (qRect.top + qRect.height / 2 - memorizeMatchAreaRect.top);
-        const endX = (aRect.left - memorizeMatchAreaRect.left);
-        const endY = (aRect.top + aRect.height / 2 - memorizeMatchAreaRect.top);
-
-        drawLine(startX, startY, endX, endY, '#4CAF50'); // Hijau untuk garis benar
-    });
-}
-
-/**
- * Menggambar satu garis di canvas.
- * @param {number} x1 Koordinat X awal.
- * @param {number} y1 Koordinat Y awal.
- * @param {number} x2 Koordinat X akhir.
- * @param {number} y2 Koordinat Y akhir.
- * @param {string} color Warna garis.
- */
-function drawLine(x1, y1, x2, y2, color) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-}
-
-/**
- * Menggambar garis sementara saat drag.
- */
-function drawCurrentLine(x1, y1, x2, y2) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.strokeStyle = '#ff69b4'; // Pink untuk garis sementara
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]); // Garis putus-putus
-    ctx.stroke();
-    ctx.setLineDash([]); // Reset ke garis solid
-}
-
-/**
- * Membersihkan semua garis di canvas.
- */
-function clearCanvas() {
-    if (ctx && canvas) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-}
-
-/**
- * Menyelesaikan mode Ingat & Cocokkan dan menampilkan hasil.
- */
-function finishMemorizeMatch() {
-    stopMemorizeMatchTimer();
-    clearCanvas(); // Pastikan canvas bersih saat selesai
-
-    let allCorrect = currentMemorizeMatches.length === memorizeQuestionsData.length;
-
-    if (allCorrect) {
-        winGame();
-    } else {
-        loseGame(`Kamu hanya berhasil mencocokkan ${currentMemorizeMatches.length} dari ${memorizeQuestionsData.length} pasangan. Coba lagi, ya!`);
-    }
-}
-
-// --- Event Listener Global (untuk memastikan DOM sudah siap) ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Initial setup: show main menu, hide other areas
-    hideAllGameAreas();
-    mainMenu.classList.remove('hidden');
-
-    // Attach initial event listeners to buttons that are always visible or appear first
-    document.querySelector('button[onclick="selectMode(\'addition\')"]').addEventListener('click', () => selectMode('addition'));
-    document.querySelector('button[onclick="selectMode(\'subtraction\')"]').addEventListener('click', () => selectMode('subtraction'));
-    document.querySelector('button[onclick="startTimedChallenge()"]').addEventListener('click', startTimedChallenge);
-    document.querySelector('button[onclick="startMemorizeMatchMode()"]').addEventListener('click', startMemorizeMatchMode);
-
-    // Add listeners for level selection buttons (delegation or directly if they exist on load)
-    document.querySelectorAll('#level-menu button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const levelNum = parseInt(e.target.textContent.match(/\d+/)[0]);
-            startGame(levelNum);
-        });
-    });
-
-    // Add listeners for general game buttons
-    checkButton.addEventListener('click', checkAnswer);
-    nextQuestionButton.addEventListener('click', nextQuestion);
-    document.querySelectorAll('#win-message button, #lose-message button').forEach(button => {
-        button.addEventListener('click', resetGame);
-    });
-});
+// Tampilkan layar selamat datang saat pertama kali load
+showWelcomeScreen();
