@@ -1,40 +1,52 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Kids - Pixel Y2K</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Matematika Lucu 💖</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Pixel Math Fun!</h1>
-        <div id="game-selection">
-            <button id="start-sum-game">Mulai Penjumlahan</button>
-            <button id="start-sub-game">Mulai Pengurangan</button>
+        <h1>Game Matematika Gemes! 🎀</h1>
+        <div id="main-menu">
+            <button onclick="selectMode('addition')">➕ Penjumlahan Manis</button>
+            <button onclick="selectMode('subtraction')">➖ Pengurangan Ceria</button>
+        </div>
+
+        <div id="level-menu" class="hidden">
+            <h2>Pilih Tingkat Keisenganmu!</h2>
+            <button onclick="startGame(1)">Level 1: Santai Dulu</button>
+            <button onclick="startGame(2)">Level 2: Waktu Mepeeeet! ⏰</button>
+            <button onclick="startGame(3)">Level 3: Angka Lebih Besar! 🤯</button>
+            <button onclick="startGame(4)">Level 4: Susun Bonus! (Ada Petunjuknya) ✨</button>
+            <button onclick="startGame(5)">Level 5: Susun Asli! (Tanpa Petunjuk) 🏆</button>
         </div>
 
         <div id="game-area" class="hidden">
-            <div id="game-info">
-                <p>Level: <span id="current-level">1</span></p>
-                <p>Skor: <span id="current-score">0</span></p>
-                <p id="timer" class="hidden">Waktu: <span id="time-left"></span>s</p>
-            </div>
-            <div id="question-area">
-                <p id="question-text"></p>
-                <input type="number" id="answer-input" placeholder="Jawab di sini" autofocus>
-                <button id="submit-answer">Jawab</button>
-            </div>
-            <p id="feedback-message"></p>
-            <button id="next-level" class="hidden">Lanjut Level</button>
-            <button id="restart-game" class="hidden">Mulai Ulang</button>
+            <div id="susun-hint" class="hidden"></div> 
+
+            <div id="question"></div>
+            
+            <div id="answer-inputs"></div> 
+
+            <button id="check-button" onclick="checkAnswer()">Yuk, Jawab! ✨</button>
+            <div id="feedback"></div>
+            <div id="timer"></div>
+            <button id="next-question-button" class="hidden" onclick="nextQuestion()">Pertanyaan Selanjutnya! ▶️</button>
         </div>
 
-        <div id="game-over-screen" class="hidden">
-            <h2>Game Selesai!</h2>
-            <p>Skor Akhir Anda: <span id="final-score"></span></p>
-            <button id="play-again">Main Lagi</button>
+        <div id="win-message" class="hidden">
+            <h2>Horeee! Kamu Hebat! 🎉💖🐻</h2>
+            <p>Dapat hadiah spesial dari kami!</p>
+            <div class="emojis">
+                <span>🎇</span>
+                <span>🎁</span>
+                <span>🎀</span>
+                <span>💖</span>
+                <span>🐻</span>
+            </div>
+            <button onclick="resetGame()">Main Lagi, Yuk! 🥰</button>
         </div>
     </div>
 
