@@ -17,19 +17,16 @@ body {
     font-family: var(--font-primary);
     background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
     margin: 0;
-    display: flex; /* Tetap flex untuk justify-content center */
+    display: flex;
     flex-direction: column; /* Mengatur item dalam kolom */
-    justify-content: flex-start; /* Konten dimulai dari atas */
-    /* align-items: center;  <--- Hapus ini */
-    min-height: 100vh;
+    justify-content: flex-start; /* Konten dimulai dari atas, agar bisa discroll */
+    min-height: 100vh; /* Memastikan body setidaknya setinggi viewport */
     color: #5B3B70;
-    overflow-x: hidden;
-    /* Tambahkan padding agar footer tidak mepet bawah layar */
-    padding-bottom: 30px;
+    overflow-x: hidden; /* Mencegah scroll horizontal */
+    padding-bottom: 30px; /* Beri sedikit ruang di bawah untuk footer */
 }
 
 .container {
-    /* Tetap seperti sebelumnya, tanpa overflow: hidden; */
     background-color: var(--white-translucent);
     border-radius: 25px;
     box-shadow: var(--shadow-effect);
@@ -38,12 +35,13 @@ body {
     max-width: 900px;
     width: 95%;
     box-sizing: border-box;
-    border: 5px solid var(--pink-dark);
-    position: relative;
-    /* margin-top: auto; dan margin-bottom: auto; bisa ditambahkan jika ingin tetap di tengah
-       tapi memungkinkan scroll jika kontennya panjang */
+    border: 5px solid var(--pink-dark); /* Border lucu */
+    position: relative; /* Untuk elemen absolut di dalamnya */
+    /* overflow: hidden; DIHAPUS, agar konten yang lebih panjang tidak terpotong */
     margin-top: 30px; /* Memberi sedikit jarak dari atas */
     margin-bottom: 30px; /* Memberi sedikit jarak dari bawah */
+    /* margin: 30px auto; untuk menengahkan horizontal dan vertikal sekaligus,
+       tapi jika konten panjang, margin auto akan mendorongnya ke atas */
 }
 
 /* Header */
@@ -99,14 +97,14 @@ body {
     background-color: var(--pink-light);
     border: 3px dashed var(--pink-dark);
     border-radius: 15px;
-    /* min-height: 350px; <--- BARIS INI DIHAPUS */
+    /* min-height: 350px; DIHAPUS, agar tinggi menyesuaikan konten */
     display: flex;
-    flex-direction: column; /* Ubah ini juga agar konten di dalamnya mudah diatur */
+    flex-direction: column; /* Mengatur konten di dalamnya mudah diatur secara kolom */
     justify-content: center;
     align-items: center;
     padding: 20px;
     box-sizing: border-box;
-    position: relative;
+    position: relative; /* Untuk penempatan elemen di dalamnya */
 }
 
 .welcome-text {
@@ -131,6 +129,50 @@ body {
         transform: translateY(-10px);
     }
 }
+
+/* Efek background: Bintang dan Hati */
+body::before, body::after {
+    content: '';
+    position: absolute;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+    z-index: -1;
+}
+
+body::before {
+    top: 5%;
+    left: 5%;
+    width: 100px;
+    height: 100px;
+    background-image: url('assets/images/hati.png'); /* Ganti dengan path gambar hati */
+    background-size: contain;
+    animation: floatHeart 10s infinite ease-in-out;
+}
+
+body::after {
+    bottom: 10%;
+    right: 8%;
+    width: 80px;
+    height: 80px;
+    background-image: url('assets/images/bintang.png'); /* Ganti dengan path gambar bintang */
+    background-size: contain;
+    animation: floatStar 12s infinite ease-in-out reverse;
+}
+
+@keyframes floatHeart {
+    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+    25% { transform: translateY(-15px) translateX(10px) rotate(5deg); }
+    50% { transform: translateY(0) translateX(0) rotate(0deg); }
+    75% { transform: translateY(15px) translateX(-10px) rotate(-5deg); }
+}
+
+@keyframes floatStar {
+    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+    25% { transform: translateY(10px) translateX(5px) rotate(-3deg); }
+    50% { transform: translateY(0) translateX(0) rotate(0deg); }
+    75% { transform: translateY(-10px) translateX(-5px) rotate(3deg); }
+}
+
 
 /* --- Gaya Khusus Game 1 (Rumah Beruang Angka) --- */
 .game1-menu {
@@ -279,6 +321,100 @@ body {
     vertical-align: middle;
 }
 
+/* --- Gaya Khusus Game 4 (Ingat dan Cocokkan) --- */
+.game4-memorize-area {
+    display: flex;
+    flex-direction: column; /* Mengatur konten di area mengingat dalam kolom */
+    align-items: center; /* Menengahkan horizontal */
+    gap: 20px; /* Jarak antar elemen */
+}
+
+.pairs-grid {
+    display: flex;
+    flex-wrap: wrap; /* KUNCI: Membuat item melipat ke baris baru */
+    justify-content: center;
+    gap: 20px; /* Jarak antar setiap pasangan (item) */
+    width: 100%;
+    max-width: 800px; /* Batasi lebar grid agar tidak terlalu melebar */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pair-item {
+    background-color: var(--yellow-light);
+    border: 3px solid var(--pink-dark);
+    border-radius: 15px;
+    padding: 15px 25px;
+    text-align: center;
+    box-shadow: var(--shadow-effect);
+
+    /* KUNCI: Mengatur layout internal pair-item */
+    display: flex;
+    flex-direction: row; /* Membuat soal dan jawaban berdampingan */
+    align-items: baseline; /* Sejajarkan di garis dasar teks */
+    justify-content: center;
+    gap: 8px; /* Jarak antara soal dan jawaban di dalam pair-item */
+    min-width: 150px; /* Beri lebar minimal agar tidak terlalu sempit */
+}
+
+.pair-question {
+    font-size: 1.8em;
+    color: #5B3B70;
+}
+
+.pair-answer {
+    font-size: 1.8em;
+    color: #7B4B94; /* Warna berbeda untuk jawaban */
+    font-weight: bold;
+}
+
+/* Gaya untuk fase mencocokkan (startGame4Match) */
+.match-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px; /* Jarak antar item yang akan dicocokkan */
+    margin-top: 20px;
+}
+
+.match-item {
+    background-color: var(--blue-light);
+    border: 3px solid var(--pink-dark);
+    border-radius: 15px;
+    padding: 15px 25px;
+    font-size: 2em;
+    color: #4A6C6F;
+    cursor: pointer;
+    transition: all 0.05s ease-in-out;
+    box-shadow: var(--shadow-effect);
+    min-width: 100px; /* Lebar minimal untuk kotak mencocokkan */
+    display: flex; /* Untuk menengahkan konten teks */
+    justify-content: center;
+    align-items: center;
+}
+
+.match-item:hover {
+    transform: translateY(-3px) scale(1.02);
+    background-color: var(--purple-light);
+    color: white;
+}
+
+.match-item.selected {
+    border-color: #f72585; /* Pink lebih terang */
+    background-color: #fce7f2;
+    box-shadow: 0 0 15px #f72585;
+    transform: scale(1.05);
+}
+
+.match-item.matched {
+    background-color: #c9f0d1; /* Hijau muda */
+    border-color: #388E3C; /* Hijau tua */
+    color: #388E3C;
+    pointer-events: none; /* Tidak bisa diklik lagi setelah cocok */
+    opacity: 0.7;
+    transform: scale(0.95); /* Sedikit mengecil setelah cocok */
+}
+
 /* --- Responsif (untuk layar kecil) --- */
 @media (max-width: 768px) {
     .game-header h1 {
@@ -331,47 +467,4 @@ body {
         font-size: 1.8em;
         width: 100px;
     }
-}
-
-/* Efek background: Bintang dan Hati */
-body::before, body::after {
-    content: '';
-    position: absolute;
-    background-repeat: no-repeat;
-    opacity: 0.3;
-    z-index: -1;
-}
-
-body::before {
-    top: 5%;
-    left: 5%;
-    width: 100px;
-    height: 100px;
-    background-image: url('assets/images/hati.png'); /* Ganti dengan path gambar hati */
-    background-size: contain;
-    animation: floatHeart 10s infinite ease-in-out;
-}
-
-body::after {
-    bottom: 10%;
-    right: 8%;
-    width: 80px;
-    height: 80px;
-    background-image: url('assets/images/bintang.png'); /* Ganti dengan path gambar bintang */
-    background-size: contain;
-    animation: floatStar 12s infinite ease-in-out reverse;
-}
-
-@keyframes floatHeart {
-    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
-    25% { transform: translateY(-15px) translateX(10px) rotate(5deg); }
-    50% { transform: translateY(0) translateX(0) rotate(0deg); }
-    75% { transform: translateY(15px) translateX(-10px) rotate(-5deg); }
-}
-
-@keyframes floatStar {
-    0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
-    25% { transform: translateY(10px) translateX(5px) rotate(-3deg); }
-    50% { transform: translateY(0) translateX(0) rotate(0deg); }
-    75% { transform: translateY(-10px) translateX(-5px) rotate(3deg); }
 }
