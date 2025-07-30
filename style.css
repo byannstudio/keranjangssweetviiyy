@@ -1,148 +1,199 @@
 body {
-    font-family: 'Press Start 2P', cursive;
-    background: linear-gradient(to right, #4CAF50, #8BC34A); /* Greenish gradient for Y2K feel */
-    color: #FFF;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #ffe4f2;
+    color: #d63384;
+    text-align: center;
+    padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    overflow: hidden; /* Prevent scrollbar from pixel art elements */
-    text-shadow: 2px 2px 0px rgba(0,0,0,0.5); /* Retro text shadow */
 }
 
 .container {
-    background-color: #333; /* Dark background for game area */
-    border: 8px solid #FFD700; /* Gold border for retro look */
-    border-radius: 15px;
-    padding: 30px;
-    text-align: center;
-    box-shadow: 10px 10px 0px rgba(0,0,0,0.7); /* Deep shadow for 3D effect */
     max-width: 600px;
-    width: 90%;
-    position: relative;
-    z-index: 10;
+    margin: auto;
+    background: #fff0f5;
+    padding: 30px;
+    border-radius: 30px;
+    box-shadow: 0 0 20px rgba(248, 165, 194, 0.7);
+    border: 3px solid #ff69b4;
 }
 
-h1 {
-    color: #FFEB3B; /* Bright yellow for title */
+h1, h2 {
+    font-family: 'Fredoka One', cursive;
+    color: #e83e8c;
+    text-shadow: 2px 2px #ffb6c1;
     margin-bottom: 25px;
-    font-size: 2.5em;
-    text-transform: uppercase;
-    letter-spacing: 3px;
 }
 
 button {
-    background-color: #FF00FF; /* Vibrant magenta/pink */
-    color: white;
-    border: 4px solid #8A2BE2; /* Purple border */
+    background-color: #ffb6c1;
+    border: none;
     padding: 12px 25px;
     margin: 10px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 1.1em;
+    border-radius: 20px;
+    font-size: 20px;
     cursor: pointer;
-    border-radius: 8px;
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-    transition: all 0.1s ease;
-    text-transform: uppercase;
+    color: white;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
 }
 
 button:hover {
-    background-color: #8A2BE2; /* Darker purple on hover */
-    border-color: #FF00FF;
-    transform: translateY(-2px);
-    box-shadow: 6px 6px 0px rgba(0,0,0,0.6);
+    background-color: #ff69b4;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 button:active {
     transform: translateY(0);
-    box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-}
-
-input[type="number"] {
-    background-color: #222;
-    color: #00FF00; /* Green text on dark input */
-    border: 3px solid #00AA00;
-    padding: 10px 15px;
-    margin-top: 20px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 1.2em;
-    width: calc(100% - 30px);
-    max-width: 200px;
-    text-align: center;
-    border-radius: 5px;
-    box-shadow: inset 2px 2px 0px rgba(0,0,0,0.5);
-}
-
-#question-text {
-    font-size: 2em;
-    color: #00FFFF; /* Cyan for questions */
-    margin-bottom: 15px;
-    min-height: 40px; /* Prevent layout shift */
-}
-
-#feedback-message {
-    font-size: 1.5em;
-    margin-top: 15px;
-    min-height: 30px; /* Prevent layout shift */
-}
-
-#game-info p {
-    font-size: 1.1em;
-    margin: 5px 0;
-    color: #ADFF2F; /* Green Yellow */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
-/* Cute Pixel Y2K Background elements (optional but cool) */
-body::before, body::after {
-    content: '';
-    position: absolute;
-    width: 150px;
-    height: 150px;
-    background-color: rgba(255, 255, 0, 0.2); /* Semi-transparent yellow square */
-    z-index: 1;
+#question {
+    font-size: 28px;
+    margin: 25px 0;
+    font-weight: bold;
+    color: #e83e8c;
+    white-space: pre-wrap; /* Penting untuk menampilkan baris baru pada soal susun */
+}
+
+/* Gaya baru untuk Level 1-3 */
+.question-fancy {
+    background-color: #fce8f0; /* Background lebih cerah */
+    border: 2px solid #ff99bb; /* Border pink */
+    border-radius: 15px;
+    padding: 15px;
+    margin: 20px auto;
+    display: flex; /* Untuk menyusun elemen di dalamnya */
+    align-items: center; /* Pusatkan vertikal */
+    justify-content: center; /* Pusatkan horizontal */
+    gap: 10px; /* Jarak antar elemen */
+    font-size: 32px; /* Ukuran font lebih besar */
+    color: #c42c75; /* Warna teks lebih kuat */
+    font-weight: bold;
+}
+
+.question-fancy .emoji-side {
+    font-size: 28px; /* Ukuran emoji samping */
+}
+
+
+#susun-hint {
+    background-color: #fffaf0;
+    border: 2px dashed #ff69b4;
+    padding: 15px;
+    margin: 10px auto 20px auto; /* Margin atas lebih kecil agar dekat dengan soal */
+    border-radius: 15px;
+    font-size: 1.1em;
+    line-height: 1.6;
+    max-width: 90%;
+    text-align: left;
+    color: #a0522d;
+}
+
+#susun-hint p {
+    margin-bottom: 8px;
+}
+
+#susun-hint strong {
+    color: #e83e8c;
+}
+
+/* Gaya untuk kotak-kotak jawaban */
+#answer-inputs {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.answer-box {
+    width: 50px;
+    height: 60px;
+    margin: 0 5px;
+    border: 3px solid #ffb6c1;
     border-radius: 10px;
-    transform: rotate(45deg);
+    font-size: 32px;
+    text-align: center;
+    color: #d63384;
+    font-weight: bold;
+    outline: none;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-body::before {
-    top: -50px;
-    left: -50px;
+.answer-box:focus {
+    border-color: #ff69b4;
+    box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
 }
 
-body::after {
-    bottom: -50px;
-    right: -50px;
-    background-color: rgba(0, 255, 255, 0.2); /* Semi-transparent cyan square */
+/* Gaya untuk satu input box di level 1-3 */
+.single-answer-input {
+    padding: 12px;
+    font-size: 28px; /* Ukuran font lebih besar untuk input tunggal */
+    border-radius: 15px;
+    border: 3px solid #ffb6c1;
+    width: 150px;
+    text-align: center;
+    color: #d63384;
+    outline: none;
+    margin: 20px auto; /* Atur margin agar sama dengan answer-inputs */
 }
 
-/* More pixel art elements */
-.container::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    width: 40px;
-    height: 40px;
-    background-color: #FF00FF; /* Magenta */
-    border-radius: 50%;
-    z-index: 1;
-    box-shadow: 0 0 10px #FF00FF;
+.single-answer-input:focus {
+    border-color: #ff69b4;
+    box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
 }
 
-.container::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    right: -20px;
-    width: 40px;
-    height: 40px;
-    background-color: #00FF00; /* Green */
-    border-radius: 50%;
-    z-index: 1;
-    box-shadow: 0 0 10px #00FF00;
+
+#feedback {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 22px;
+    min-height: 30px;
+}
+
+#timer {
+    margin-top: 15px;
+    font-size: 20px;
+    color: #e83e8c;
+    font-weight: bold;
+}
+
+/* Gaya untuk pesan kemenangan */
+#win-message {
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 15px;
+    margin-top: 20px;
+    box-shadow: inset 0 0 10px rgba(255, 105, 180, 0.3);
+}
+
+.emojis span {
+    font-size: 40px;
+    margin: 0 8px;
+    animation: bounce 0.8s infinite alternate;
+    display: inline-block;
+}
+
+.emojis span:nth-child(2) { animation-delay: 0.1s; }
+.emojis span:nth-child(3) { animation-delay: 0.2s; }
+.emojis span:nth-child(4) { animation-delay: 0.3s; }
+.emojis span:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-10px);
+    }
 }
