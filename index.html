@@ -1,0 +1,105 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TokoKu :: Millennium Mall 🛍️</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka+One&family=Audiowide&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="background-overlay"></div>
+
+    <div class="container">
+        <h1 class="main-title">🛍️ TOKOKU <span class="retro-glitch">.COM</span> 💾</h1>
+        <p class="description">✨ Pusat belanja *online* paling *trendy* di milenium baru! ✨</p>
+
+        <div class="marquee-container">
+            <p class="marquee-text">🔔 SALE GEDE! DISKON 20% SEMUA PRODUK! BURUAN SEBELUM KETINGGALAN! 🔔</p>
+        </div>
+
+        <div class="socials">
+            <a href="https://instagram.com/tokoku" target="_blank" class="social-btn"><i class="fab fa-instagram"></i> IG</a>
+            <a href="https://tiktok.com/@tokoku" target="_blank" class="social-btn"><i class="fab fa-tiktok"></i> TT</a>
+            <a href="https://facebook.com/tokoku" target="_blank" class="social-btn"><i class="fab fa-facebook"></i> FB</a>
+            <a href="https://x.com/tokoku" target="_blank" class="social-btn"><i class="fab fa-x-twitter"></i> XTR</a>
+        </div>
+
+        <button id="openGameBtn" class="action-btn">🎮 Main Game! 👾</button>
+
+        <div class="folder-wrapper">
+            <div class="folder" data-id="produk1">
+                <div class="folder-title">
+                    <span class="icon">👗</span> FASHION & GAIA
+                    <span class="toggle-arrow">▼</span>
+                </div>
+                <div class="products" id="produk1">
+                    <a href="https://shopee.com/produk1" target="_blank">Baju Kaos <span class="new-tag">NEW!</span></a>
+                    <a href="https://shopee.com/produk2" target="_blank">Celana Jeans</a>
+                    <a href="https://shopee.com/produk9" target="_blank">Jaket Neon ✨</a>
+                </div>
+            </div>
+
+            <div class="folder" data-id="produk2">
+                <div class="folder-title">
+                    <span class="icon">🎧</span> GADGET & TECH
+                    <span class="toggle-arrow">▼</span>
+                </div>
+                <div class="products" id="produk2">
+                    <a href="https://shopee.com/produk3" target="_blank">Headphone Gede</a>
+                    <a href="https://shopee.com/produk4" target="_blank">Flashdisk Transparan</a>
+                    <a href="https://shopee.com/produk10" target="_blank">CD Player Portable</a>
+                </div>
+            </div>
+
+            <div class="folder" data-id="produk3">
+                <div class="folder-title">
+                    <span class="icon">💅</span> BEAUTY & BLING
+                    <span class="toggle-arrow">▼</span>
+                </div>
+                <div class="products" id="produk3">
+                    <a href="https://shopee.com/produk5" target="_blank">Lip Gloss Kilat</a>
+                    <a href="https://shopee.com/produk6" target="_blank">Hair Clips Unik</a>
+                    <a href="https://shopee.com/produk11" target="_blank">Cat Kuku Glitter</a>
+                </div>
+            </div>
+
+            <div class="folder" data-id="produk4">
+                <div class="folder-title">
+                    <span class="icon">🧸</span> TOYS & GAMES
+                    <span class="toggle-arrow">▼</span>
+                </div>
+                <div class="products" id="produk4">
+                    <a href="https://shopee.com/produk7" target="_blank">Tamagochi Vintage</a>
+                    <a href="https://shopee.com/produk8" target="_blank">Mainan Slime</a>
+                    <a href="https://shopee.com/produk12" target="_blank">Yoyo LED</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-text">
+            <p>💖 Kunjungi Kami: <a href="#" class="webring-link">Y2K Webring</a> | <span class="copyright">© 2000 TokoKu Corp. All Rights Reserved.</span></p>
+            <p class="visitor-counter">Hits: <span id="hitCount">999999</span></p>
+        </div>
+    </div>
+
+    <div id="gameWindow" class="game-window">
+        <div class="window-title-bar">
+            <span class="window-title">👾 Guess The Number! 👾</span>
+            <button class="close-btn" id="closeGameBtn">✖</button>
+        </div>
+        <div class="window-content">
+            <p class="game-instruction">Aku mikir angka antara 1 sampai 100. Tebak yuk!</p>
+            <input type="number" id="guessInput" min="1" max="100" placeholder="Ketik tebakanmu...">
+            <button id="checkGuessBtn" class="game-btn">Cek!</button>
+            <p id="gameResult" class="game-message"></p>
+            <button id="resetGameBtn" class="game-btn reset-btn">Main Lagi?</button>
+        </div>
+    </div>
+
+    <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-menu-open-1065.mp3"></audio> <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-success-alert-2060.mp3"></audio>
+    <audio id="loseSound" src="https://assets.mixkit.co/sfx/preview/mixkit-fail-game-trigger-2351.mp3"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>

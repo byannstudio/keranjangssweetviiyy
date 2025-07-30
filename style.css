@@ -1,0 +1,666 @@
+/* Custom Cursor: Lebih seperti kursor bawaan Windows 98/XP, tapi dengan warna cerah */
+body {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23FFD700" stroke="%238A2BE2" stroke-width="2" d="M2.21,21.79L12,2.21L21.79,21.79H2.21Z"/><circle cx="12" cy="12" r="2" fill="%23FF69B4"/></svg>') 12 12, auto; /* Gold triangle with pink dot */
+    -webkit-font-smoothing: antialiased; /* Untuk teks yang lebih halus */
+    -moz-osx-osx-font-smoothing: grayscale;
+}
+
+/* Base Styles: Latar belakang lebih ke arah gradasi holografik/plastik */
+body {
+    font-family: 'Fredoka One', sans-serif;
+    padding: 20px;
+    margin: 0;
+    color: #333;
+    line-height: 1.6;
+    background: linear-gradient(45deg, #00FFFF, #FF69B4, #FFD700, #8A2BE2); /* Aqua, Hot Pink, Gold, Blue Violet */
+    background-size: 400% 400%;
+    animation: gradientShift 25s ease infinite alternate; /* Animasi gradien yang lebih halus dan lambat */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    overflow-y: auto;
+    position: relative;
+    user-select: none; /* Mencegah seleksi teks untuk efek estetika */
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 0%; }
+    25% { background-position: 100% 0%; }
+    50% { background-position: 100% 100%; }
+    75% { background-position: 0% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* Background Overlay untuk efek grid atau garis scan */
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 20px),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 20px);
+    pointer-events: none; /* Agar tidak menghalangi interaksi mouse */
+    z-index: 0;
+    opacity: 0.6;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.98); /* Lebih solid tapi tetap frosted */
+    border: 5px solid #00FFFF; /* Border tebal warna Aqua */
+    border-radius: 35px; /* Lebih bulat lagi, efek bubble */
+    padding: 35px;
+    max-width: 650px; /* Lebih lebar sedikit */
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px #FF69B4; /* Shadow lebih kuat + glow Hot Pink */
+    margin-top: 40px;
+    margin-bottom: 40px;
+    backdrop-filter: blur(8px) brightness(1.1); /* Frosted glass lebih kuat dan cerah */
+    position: relative;
+    overflow: hidden;
+    z-index: 1; /* Pastikan di atas overlay */
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg); /* Efek 3D ringan */
+    animation: popIn 0.8s ease-out; /* Animasi masuk */
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.9) perspective(1000px) rotateX(10deg) rotateY(10deg); }
+    to { opacity: 1; transform: scale(1) perspective(1000px) rotateX(2deg) rotateY(-2deg); }
+}
+
+/* Header */
+.main-title {
+    font-family: 'Audiowide', cursive; /* Font futuristik */
+    color: #8A2BE2; /* Blue Violet */
+    font-size: 40px; /* Lebih besar */
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 5px 5px 0px #FFD700, 8px 8px 0px #FF1493; /* Gold dan Deep Pink untuk pop */
+    letter-spacing: 4px; /* Lebih lebar */
+    animation: neonPulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse {
+    0% { text-shadow: 5px 5px 0px #FFD700, 8px 8px 0px #FF1493, 0 0 10px rgba(255, 255, 255, 0.5); }
+    50% { text-shadow: 5px 5px 15px #FFD700, 8px 8px 20px #FF1493, 0 0 25px #00FFFF; } /* Aqua glow */
+    100% { text-shadow: 5px 5px 0px #FFD700, 8px 8px 0px #FF1493, 0 0 10px rgba(255, 255, 255, 0.5); }
+}
+
+.main-title .retro-glitch {
+    color: #FFD700; /* Gold */
+    position: relative;
+    display: inline-block;
+    animation: textGlitch 0.6s infinite alternate steps(2);
+}
+
+@keyframes textGlitch {
+    0% { transform: translateX(0); text-shadow: 2px 0 #FF1493, -2px 0 #00FFFF; }
+    33% { transform: translateX(calc(var(--random-x, 0) * 1px)); text-shadow: 2px 0 #00FFFF, -2px 0 #FFD700; }
+    66% { transform: translateX(calc(var(--random-x, 0) * 1px)); text-shadow: 2px 0 #FFD700, -2px 0 #FF1493; }
+    100% { transform: translateX(0); text-shadow: 2px 0 #FF1493, -2px 0 #00FFFF; }
+}
+
+/* Marquee Text */
+.marquee-container {
+    background-color: #00FFFF; /* Aqua */
+    border: 2px solid #FF1493; /* Deep Pink */
+    padding: 8px 15px;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+}
+
+.marquee-text {
+    font-family: 'Press Start 2P', cursive;
+    color: #8A2BE2; /* Blue Violet */
+    font-size: 14px;
+    white-space: nowrap;
+    animation: marquee 15s linear infinite;
+    padding-left: 100%; /* Mulai dari luar */
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); } /* Berjalan ke kiri */
+}
+
+.description {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 25px;
+    color: #4B0082; /* Indigo */
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.7);
+    animation: textFadeIn 1.5s ease-out;
+}
+
+@keyframes textFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+/* Socials */
+.socials {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 35px;
+    gap: 18px; /* Lebih banyak jarak */
+}
+
+.social-btn {
+    background-color: #FFD700; /* Gold */
+    color: #FF1493; /* Deep Pink */
+    padding: 12px 22px; /* Lebih besar */
+    border-radius: 40px; /* Lebih bulat lagi */
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Animasi springy */
+    box-shadow: 5px 5px 0px #8A2BE2; /* Blue Violet shadow */
+    border: 3px solid #00FFFF; /* Aqua border */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Press Start 2P', cursive;
+    text-transform: uppercase;
+}
+
+.social-btn:hover {
+    background-color: #FF69B4; /* Hot Pink on hover */
+    color: white;
+    box-shadow: 5px 5px 0px #00FFFF; /* Aqua shadow on hover */
+    transform: translateY(-5px) scale(1.05); /* Pop and scale */
+}
+
+.social-btn i {
+    font-size: 20px; /* Icon lebih besar */
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+}
+
+/* Action Button (for mini game) */
+.action-btn {
+    display: block;
+    width: fit-content;
+    margin: 0 auto 35px auto; /* Tengah dan jarak ke bawah */
+    background-color: #8A2BE2; /* Blue Violet */
+    color: #FFD700; /* Gold */
+    padding: 15px 30px;
+    border: 4px solid #00FFFF; /* Aqua border */
+    border-radius: 15px; /* Sedikit bulat */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 7px 7px 0px #FF1493, 0 0 20px rgba(255,255,255,0.7); /* Deep Pink shadow + white glow */
+    transition: all 0.2s ease-out;
+    letter-spacing: 1px;
+}
+
+.action-btn:hover {
+    background-color: #FF1493; /* Deep Pink on hover */
+    color: white;
+    box-shadow: 7px 7px 0px #00FFFF, 0 0 30px rgba(255,255,255,1); /* Aqua shadow + stronger glow */
+    transform: translateY(-4px) rotateZ(1deg) scale(1.02);
+}
+
+.action-btn:active {
+    transform: translateY(2px);
+    box-shadow: 3px 3px 0px #FF1493;
+}
+
+
+/* Folder Structure */
+.folder-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Jarak antar folder lebih jauh */
+}
+
+.folder {
+    background-color: #E0FFFF; /* Light Cyan, warna plastik cerah */
+    border: 3px solid #FF69B4; /* Hot Pink border */
+    border-radius: 20px; /* Lebih bulat */
+    box-shadow: 7px 7px 0px #8A2BE2, 0 0 15px rgba(0,255,255,0.5); /* Blue Violet shadow + Aqua glow */
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease-out; /* Animasi pada hover */
+}
+
+.folder:hover {
+    transform: translateY(-5px) rotateZ(-1deg); /* Slight lift and rotate */
+}
+
+.folder-title {
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(90deg, #FF1493, #FFD700); /* Deep Pink to Gold gradient */
+    color: white;
+    padding: 15px 25px; /* Lebih besar */
+    font-size: 20px; /* Font lebih besar */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px dashed rgba(255, 255, 255, 0.6); /* Dashed line lebih tebal */
+    transition: background 0.3s ease, transform 0.1s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    font-family: 'Audiowide', cursive; /* Font futuristik */
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+}
+
+.folder-title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%; /* Mulai lebih jauh */
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3); /* Glossy overlay lebih kuat */
+    transform: skewX(-30deg); /* Lebih miring */
+    transition: left 0.6s ease;
+    z-index: -1;
+}
+
+.folder-title:hover::before {
+    left: 150%; /* Berakhir lebih jauh */
+}
+
+.folder-title .icon {
+    font-size: 28px; /* Icon lebih besar */
+    margin-right: 15px;
+    filter: drop-shadow(2px 2px 1px rgba(0,0,0,0.3)); /* Drop shadow pada icon */
+}
+
+.toggle-arrow {
+    font-size: 1.5em; /* Arrow lebih besar */
+    transition: transform 0.3s ease;
+    color: #4B0082; /* Indigo */
+}
+
+/* Products List */
+.products {
+    display: none;
+    padding: 20px; /* Padding lebih besar */
+    background-color: #F8F8FF; /* Ghost White, lebih terang */
+    border-top: 1px solid #FFC0CB;
+    font-family: 'VT323', monospace;
+    animation: slideInDown 0.4s ease-out; /* Animasi masuk yang lebih cepat */
+}
+
+@keyframes slideInDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.products.active {
+    display: block;
+}
+
+.products a {
+    display: block;
+    background-color: #FFC0CB; /* Pink */
+    padding: 12px 18px; /* Lebih besar */
+    margin-bottom: 10px; /* Jarak antar link lebih jauh */
+    border-radius: 12px; /* Lebih bulat */
+    text-decoration: none;
+    color: #4B0082; /* Indigo */
+    font-size: 17px; /* Font lebih besar */
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+    border: 2px solid #FF69B4; /* Hot Pink border lebih tebal */
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.15); /* Shadow lebih kuat */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.products a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,255,255,0.08), /* Scanline Aqua */
+        rgba(0,255,255,0.08) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+.products a:hover {
+    background-color: #8A2BE2; /* Blue Violet on hover */
+    color: white;
+    transform: translateX(8px) rotateZ(0.5deg); /* Slide lebih jauh & rotasi ringan */
+    box-shadow: 6px 6px 0px #FFD700; /* Gold shadow on hover */
+}
+
+.new-tag {
+    background-color: #FFD700; /* Gold */
+    color: #8A2BE2; /* Blue Violet */
+    padding: 4px 10px; /* Lebih besar */
+    border-radius: 6px; /* Lebih bulat */
+    font-size: 0.9em;
+    font-weight: bold;
+    animation: bounce 0.8s infinite alternate; /* Animasi bounce */
+    border: 1px dashed #FF1493; /* Dashed border */
+}
+
+@keyframes bounce {
+    0% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.1) translateY(-3px); }
+    100% { transform: scale(1) translateY(0); }
+}
+
+/* Footer Text */
+.footer-text {
+    text-align: center;
+    margin-top: 35px;
+    font-family: 'VT323', monospace;
+    font-size: 1.2em; /* Lebih besar */
+    color: #4B0082;
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+    border-top: 2px dotted #FF69B4; /* Garis putus-putus Hot Pink */
+    padding-top: 20px;
+}
+
+.footer-text p {
+    margin: 8px 0;
+}
+
+.webring-link {
+    color: #FF1493; /* Deep Pink */
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-style: wavy; /* Efek gelombang */
+    transition: color 0.2s ease-in-out;
+}
+
+.webring-link:hover {
+    color: #00FFFF; /* Aqua on hover */
+}
+
+.copyright {
+    color: #008080; /* Teal, warna khas tahun 2000-an */
+    font-size: 0.9em;
+}
+
+.visitor-counter {
+    background-color: #c0c0c0; /* Warna abu-abu ala Windows */
+    color: #000000;
+    padding: 5px 10px;
+    border: 2px outset #ffffff; /* Efek 3D tombol lama */
+    display: inline-block;
+    margin-top: 10px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8em;
+}
+
+/* --- Mini Game Window Styles --- */
+.game-window {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 380px; /* Lebar Jendela */
+    max-width: 90%;
+    background-color: rgba(255, 255, 255, 0.95); /* Sedikit transparan */
+    border: 3px solid #00FFFF; /* Aqua border */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 0 0 20px #FF69B4; /* Lebih gelap, ada glow */
+    border-radius: 15px; /* Lebih bulat dari jendela Windows asli */
+    overflow: hidden;
+    font-family: 'VT323', monospace;
+    z-index: 1000; /* Pastikan di atas semua elemen lain */
+    animation: windowPopIn 0.3s ease-out;
+}
+
+@keyframes windowPopIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.window-title-bar {
+    background: linear-gradient(90deg, #8A2BE2, #FF1493); /* Blue Violet to Deep Pink */
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #FFD700; /* Gold line */
+    cursor: grab; /* Kursor drag */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+}
+
+.window-title {
+    user-select: none; /* Tidak bisa di-select */
+}
+
+.close-btn {
+    background-color: #FF69B4; /* Hot Pink */
+    color: white;
+    border: 2px solid #FFD700; /* Gold border */
+    width: 28px;
+    height: 28px;
+    border-radius: 50%; /* Bulat */
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    text-align: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+}
+
+.close-btn:hover {
+    background-color: #FF1493; /* Deep Pink on hover */
+    transform: scale(1.1);
+}
+
+.close-btn:active {
+    background-color: #CD5C5C; /* Indian Red */
+    transform: scale(0.9);
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+}
+
+.window-content {
+    padding: 25px;
+    text-align: center;
+    color: #4B0082; /* Indigo */
+}
+
+.game-instruction {
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.7);
+}
+
+#guessInput {
+    width: calc(100% - 40px);
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    border: 3px solid #00FFFF; /* Aqua */
+    border-radius: 8px;
+    background-color: #E0FFFF; /* Light Cyan */
+    font-family: 'VT323', monospace;
+    font-size: 1.2em;
+    color: #4B0082;
+    text-align: center;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+#guessInput:focus {
+    outline: none;
+    border-color: #FF69B4; /* Hot Pink on focus */
+    box-shadow: 0 0 8px rgba(255,105,180,0.5); /* Hot Pink glow */
+}
+
+.game-btn {
+    background-color: #FFD700; /* Gold */
+    color: #8A2BE2; /* Blue Violet */
+    padding: 12px 25px;
+    border: 2px solid #FF1493; /* Deep Pink */
+    border-radius: 10px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-out;
+    margin: 5px;
+}
+
+.game-btn:hover {
+    background-color: #FF69B4; /* Hot Pink */
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 0px #00FFFF; /* Aqua */
+}
+
+.game-btn:active {
+    transform: translateY(1px);
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+}
+
+.game-btn.reset-btn {
+    background-color: #00FFFF; /* Aqua */
+    color: #4B0082; /* Indigo */
+    border-color: #8A2BE2; /* Blue Violet */
+    display: none; /* Hidden until game ends */
+}
+
+.game-btn.reset-btn:hover {
+    background-color: #8A2BE2; /* Blue Violet */
+    color: white;
+    box-shadow: 5px 5px 0px #FFD700; /* Gold */
+}
+
+.game-message {
+    font-family: 'VT323', monospace;
+    font-size: 1.4em;
+    margin-top: 20px;
+    min-height: 1.5em; /* Untuk mencegah layout shift */
+    color: #FF1493; /* Deep Pink untuk pesan */
+    font-weight: bold;
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+    animation: messageFadeIn 0.5s ease-out;
+}
+
+@keyframes messageFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Responsive adjustments */
+@media screen and (max-width: 600px) {
+    .container {
+        padding: 25px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+        border-radius: 25px;
+        transform: none; /* Nonaktifkan 3D pada mobile */
+    }
+
+    .main-title {
+        font-size: 30px;
+        letter-spacing: 2px;
+        text-shadow: 4px 4px 0px #FFD700, 6px 6px 0px #FF1493;
+    }
+
+    .marquee-text {
+        font-size: 12px;
+    }
+
+    .description {
+        font-size: 16px;
+    }
+
+    .social-btn {
+        font-size: 14px;
+        padding: 10px 18px;
+        gap: 6px;
+    }
+
+    .social-btn i {
+        font-size: 16px;
+    }
+
+    .action-btn {
+        font-size: 16px;
+        padding: 12px 25px;
+    }
+
+    .folder-title {
+        font-size: 18px;
+        padding: 12px 20px;
+    }
+
+    .folder-title .icon {
+        font-size: 24px;
+        margin-right: 10px;
+    }
+
+    .toggle-arrow {
+        font-size: 1.3em;
+    }
+
+    .products a {
+        font-size: 15px;
+        padding: 10px 15px;
+    }
+
+    .new-tag {
+        font-size: 0.7em;
+        padding: 3px 8px;
+    }
+
+    .footer-text {
+        font-size: 1em;
+        padding-top: 15px;
+    }
+    .visitor-counter {
+        font-size: 0.7em;
+    }
+
+    .game-window {
+        width: 95%; /* Lebih lebar di mobile */
+        padding: 15px;
+    }
+
+    .game-instruction {
+        font-size: 1.1em;
+    }
+
+    #guessInput {
+        padding: 10px 15px;
+        font-size: 1em;
+    }
+
+    .game-btn {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+
+    .game-message {
+        font-size: 1.2em;
+    }
+}
