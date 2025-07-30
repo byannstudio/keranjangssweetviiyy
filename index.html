@@ -1,216 +1,42 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ TOKOKU 2000 💖</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='-5' y='90' font-size='90'%3E💾%3C/text%3E%3C/svg%3E" type="image/svg+xml">
-
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka+One&family=Audiowide&family=VT323&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Math Kids - Pixel Y2K</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <div class="holographic-background"></div>
-
     <div class="container">
-        <header class="main-header">
-            <h1 class="main-title">
-                <span class="left-wing">‹⚡</span> TOKOKU <span class="glitch-text">2000</span> <span class="right-wing">💖›</span>
-            </h1>
-            <p class="tagline">✨ Your Digital Dream Mall! ✨</p>
-        </header>
-
-        <div class="marquee-wrapper">
-            <p class="marquee-content">
-                📢 FRESH DROPS EVERY HOUR! 💖 CYBER MONDAY DEALS ALL WEEK! 👾 FREE SHIPPING ON ORDERS OVER $50! ⚡
-            </p>
+        <h1>Pixel Math Fun!</h1>
+        <div id="game-selection">
+            <button id="start-sum-game">Mulai Penjumlahan</button>
+            <button id="start-sub-game">Mulai Pengurangan</button>
         </div>
 
-        <nav class="social-links">
-            <a href="https://instagram.com/tokoku" target="_blank" class="social-btn instagram-btn"><i class="fab fa-instagram"></i> INSTAGRAM</a>
-            <a href="https://tiktok.com/@tokoku" target="_blank" class="social-btn tiktok-btn"><i class="fab fa-tiktok"></i> TIKTOK</a>
-            <a href="https://facebook.com/tokoku" target="_blank" class="social-btn facebook-btn"><i class="fab fa-facebook-f"></i> FACEBOOK</a>
-            <a href="https://x.com/tokoku" target="_blank" class="social-btn twitter-btn"><i class="fab fa-x-twitter"></i> TWITTER</a>
-        </nav>
-
-        <section class="game-center">
-            <h2>🎮 The Arcade Zone 👾</h2>
-            <div class="game-buttons-grid">
-                <button id="openGuessGameBtn" class="game-launch-btn">
-                    <span class="icon">🔢</span>
-                    <span class="text">GUESS THE NUMBER</span>
-                    <span class="effect"></span>
-                </button>
-                <button id="openRPSGameBtn" class="game-launch-btn">
-                    <span class="icon">✂️</span>
-                    <span class="text">ROCK PAPER SCISSORS</span>
-                    <span class="effect"></span>
-                </button>
-                <button id="openWhacAMoleBtn" class="game-launch-btn">
-                    <span class="icon">🔨</span>
-                    <span class="text">WHACK THE BYTE!</span>
-                    <span class="effect"></span>
-                </button>
+        <div id="game-area" class="hidden">
+            <div id="game-info">
+                <p>Level: <span id="current-level">1</span></p>
+                <p>Skor: <span id="current-score">0</span></p>
+                <p id="timer" class="hidden">Waktu: <span id="time-left"></span>s</p>
             </div>
-        </section>
-
-        <section class="folder-section">
-            <h2>📁 DIGITAL DIRECTORIES 🗂️</h2>
-            <div class="folder-grid">
-                <div class="folder" data-id="fashion-style">
-                    <div class="folder-header">
-                        <span class="folder-icon">👗</span>
-                        <span class="folder-title-text">FASHION & STYLE</span>
-                        <span class="toggle-arrow">▼</span>
-                    </div>
-                    <div class="folder-content" id="fashion-style">
-                        <a href="https://shopee.com/y2k-top" target="_blank" class="product-link">
-                            Y2K Crop Top <span class="new-badge">NEW!</span>
-                        </a>
-                        <a href="https://shopee.com/cargo-pants" target="_blank" class="product-link">
-                            Cyber Cargo Pants
-                        </a>
-                        <a href="https://shopee.com/platform-sneakers" target="_blank" class="product-link">
-                            Chunky Platform Sneakers <span class="hot-badge">HOT!</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="folder" data-id="gadgets-tech">
-                    <div class="folder-header">
-                        <span class="folder-icon">🎧</span>
-                        <span class="folder-title-text">GADGETS & TECH</span>
-                        <span class="toggle-arrow">▼</span>
-                    </div>
-                    <div class="folder-content" id="gadgets-tech">
-                        <a href="https://shopee.com/retro-headphone" target="_blank" class="product-link">
-                            Neon Wired Headphones
-                        </a>
-                        <a href="https://shopee.com/transparent-powerbank" target="_blank" class="product-link">
-                            Transparent Powerbank <span class="new-badge">NEW!</span>
-                        </a>
-                        <a href="https://shopee.com/digital-camera" target="_blank" class="product-link">
-                            Digital Camcorder <span class="hot-badge">HOT!</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="folder" data-id="beauty-bling">
-                    <div class="folder-header">
-                        <span class="folder-icon">💅</span>
-                        <span class="folder-title-text">BEAUTY & BLING</span>
-                        <span class="toggle-arrow">▼</span>
-                    </div>
-                    <div class="folder-content" id="beauty-bling">
-                        <a href="https://shopee.com/glitter-lipgloss" target="_blank" class="product-link">
-                            Ultra-Shine Lip Gloss
-                        </a>
-                        <a href="https://shopee.com/butterfly-clips" target="_blank" class="product-link">
-                            Butterfly Hair Clips
-                        </a>
-                        <a href="https://shopee.com/choker-necklace" target="_blank" class="product-link">
-                            Metallic Choker Necklace <span class="new-badge">NEW!</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="folder" data-id="games-collectibles">
-                    <div class="folder-header">
-                        <span class="folder-icon">👾</span>
-                        <span class="folder-title-text">GAMES & COLLECTIBLES</span>
-                        <span class="toggle-arrow">▼</span>
-                    </div>
-                    <div class="folder-content" id="games-collectibles">
-                        <a href="https://shopee.com/virtual-pet" target="_blank" class="product-link">
-                            Cyber Pet (Tamagotchi!) <span class="hot-badge">HOT!</span>
-                        </a>
-                        <a href="https://shopee.com/action-figure" target="_blank" class="product-link">
-                            Anime Action Figures
-                        </a>
-                        <a href="https://shopee.com/trading-cards" target="_blank" class="product-link">
-                            Holographic Trading Cards <span class="new-badge">NEW!</span>
-                        </a>
-                    </div>
-                </div>
+            <div id="question-area">
+                <p id="question-text"></p>
+                <input type="number" id="answer-input" placeholder="Jawab di sini" autofocus>
+                <button id="submit-answer">Jawab</button>
             </div>
-        </section>
-
-        <footer class="main-footer">
-            <p>
-                🌐 Powered by Dial-Up Dreams. Est. 2000. All Rights Reserved. © TokokuCorp.
-            </p>
-            <p class="hits-counter">
-                TOTAL HITS: <span id="hitCount">000000</span>
-            </p>
-            <p>
-                Join the <a href="https://example.com/webring" target="_blank" class="webring-link">Y2K WEB-RING</a>!
-            </p>
-        </footer>
-    </div>
-
-    <div id="guessGameWindow" class="game-window">
-        <div class="window-title-bar">
-            <span class="window-title">🔢 GUESS THE NUMBER! 🔢</span>
-            <button class="close-btn" data-game-id="guess">✖</button>
+            <p id="feedback-message"></p>
+            <button id="next-level" class="hidden">Lanjut Level</button>
+            <button id="restart-game" class="hidden">Mulai Ulang</button>
         </div>
-        <div class="window-content">
-            <p class="game-instruction">I'm thinking of a number between 1 and 100. Guess it!</p>
-            <input type="number" id="guessInput" min="1" max="100" placeholder="Enter your guess...">
-            <button id="checkGuessBtn" class="game-btn">CHECK GUESS</button>
-            <p id="guessGameResult" class="game-message"></p>
-            <button id="resetGuessGameBtn" class="game-btn reset-btn">PLAY AGAIN</button>
+
+        <div id="game-over-screen" class="hidden">
+            <h2>Game Selesai!</h2>
+            <p>Skor Akhir Anda: <span id="final-score"></span></p>
+            <button id="play-again">Main Lagi</button>
         </div>
     </div>
-
-    <div id="rpsGameWindow" class="game-window">
-        <div class="window-title-bar">
-            <span class="window-title">✂️ ROCK PAPER SCISSORS 📄</span>
-            <button class="close-btn" data-game-id="rps">✖</button>
-        </div>
-        <div class="window-content">
-            <p class="game-instruction">Choose your move:</p>
-            <div class="rps-choices">
-                <button class="rps-btn" data-choice="batu">✊</button>
-                <button class="rps-btn" data-choice="kertas">✋</button>
-                <button class="rps-btn" data-choice="gunting">✌️</button>
-            </div>
-            <p id="rpsResult" class="game-message"></p>
-            <p class="game-score">PLAYER: <span id="playerScore">0</span> | COMPUTER: <span id="computerScore">0</span></p>
-            <button id="resetRPSGameBtn" class="game-btn reset-btn">PLAY AGAIN</button>
-        </div>
-    </div>
-
-    <div id="whacAMoleGameWindow" class="game-window">
-        <div class="window-title-bar">
-            <span class="window-title">🔨 WHACK THE BYTE! 💥</span>
-            <button class="close-btn" data-game-id="whacAMole">✖</button>
-        </div>
-        <div class="window-content">
-            <p class="game-instruction">Whack the bytes! Time: <span id="wamTimer">30</span>s</p>
-            <div id="wamGrid" class="wam-grid">
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-                <div class="hole"><div class="mole"></div></div>
-            </div>
-            <p class="game-score">SCORE: <span id="wamCurrentScore">0</span></p>
-            <p id="wamResult" class="game-message"></p>
-            <button id="startWhacAMoleBtn" class="game-btn">START GAME</button>
-            <button id="resetWhacAMoleBtn" class="game-btn reset-btn">PLAY AGAIN</button>
-        </div>
-    </div>
-
-    <audio id="clickSound" src="assets/sounds/menu-click.mp3" preload="auto"></audio>
-    <audio id="winSound" src="assets/sounds/game-win.mp3" preload="auto"></audio>
-    <audio id="loseSound" src="assets/sounds/game-lose.mp3" preload="auto"></audio>
-    <audio id="whackSound" src="assets/sounds/whack.mp3" preload="auto"></audio>
-    <audio id="popSound" src="assets/sounds/pop.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
 </body>
