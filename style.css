@@ -34,9 +34,9 @@ body {
     max-width: 900px;
     width: 95%;
     box-sizing: border-box;
-    border: 5px solid var(--pink-dark); /* Border lucu */
-    position: relative; /* Untuk elemen absolut di dalamnya */
-    overflow: hidden; /* Untuk clip konten yang keluar */
+    border: 5px solid var(--pink-dark);
+    position: relative;
+    /* overflow: hidden; <--- BARIS INI DIHAPUS */
 }
 
 /* Header */
